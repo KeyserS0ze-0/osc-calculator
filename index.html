@@ -10,7 +10,8 @@
 *{box-sizing:border-box}
 :root{--bg:#101010;--panel:#191919;--field:#101010;--border:#383838;--text:#eee;--muted:#929292;--green:#a7e8b7;--green-bg:#26372d;--red:#ff7777}
 body{margin:0;padding:16px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-button,input{font:inherit}button{cursor:pointer}
+button,input{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
 .app{width:100%;max-width:410px;margin:0 auto}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 h1{font-size:23px;letter-spacing:1px;margin:0 0 5px}
@@ -76,8 +77,8 @@ button:active{transform:scale(.985)}
 </header>
 
 <nav class="switcher" aria-label="Choose calculator">
-<button class="switch-button active" data-page="osc" type="button">OSC CALCULATOR</button>
-<button class="switch-button" data-page="blocks" type="button">BLOCK CALCULATOR</button>
+<button class="switch-button active" data-page="osc" type="button" aria-pressed="true">OSC CALCULATOR</button>
+<button class="switch-button" data-page="blocks" type="button" aria-pressed="false">BLOCK CALCULATOR</button>
 </nav>
 
 <section class="panel" id="oscPage">
@@ -181,30 +182,49 @@ button:active{transform:scale(.985)}
 </div>
 
 <button id="extrasButton" type="button" style="display:block;max-width:410px;width:100%;margin:12px auto 0;padding:8px;background:transparent;color:#666;border:0;font-size:10px;letter-spacing:1px">···</button>
+<div id="appError" role="alert" style="display:none;max-width:410px;margin:12px auto;color:#ff7777;font-size:12px;line-height:1.5"></div>
 
 <script>
-(() => {
+(function () {
 "use strict";
-const $ = id => document.getElementById(id);
-let axis = "X", lastCalculation = "", history = [], savedCannons = [];
-const HISTORY_KEY = "oscToolkitHistory_v1";
-const CANNONS_KEY = "oscToolkitCannons_v1";
 
-try {
-  history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-  savedCannons = JSON.parse(localStorage.getItem(CANNONS_KEY) || "[]");
-  if (!Array.isArray(history)) history = [];
-  if (!Array.isArray(savedCannons)) savedCannons = [];
-} catch(e) { history = []; savedCannons = []; }
+function byId(id) { return document.getElementById(id); }
+var axis = "X";
+var lastCalculation = "";
+var history = [];
+var savedCannons = [];
+var HISTORY_KEY = "oscToolkitHistory_v1";
+var CANNONS_KEY = "oscToolkitCannons_v1";
 
+function reportFatalError(error) {
+  var box = byId("appError");
+  if (box) {
+    box.style.display = "block";
+    box.textContent = "Toolkit script error: " + (error && error.message ? error.message : String(error)) + ". Refresh the page and check that the complete code was published.";
+  }
+}
+window.addEventListener("error", function (event) {
+  if (event && event.message) reportFatalError(event.message);
+});
+
+function loadStored(key) {
+  try {
+    var value = JSON.parse(window.localStorage.getItem(key) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch (error) {
+    return [];
+  }
+}
 function persist() {
   try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    localStorage.setItem(CANNONS_KEY, JSON.stringify(savedCannons));
-  } catch(e) {}
+    window.localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    window.localStorage.setItem(CANNONS_KEY, JSON.stringify(savedCannons));
+  } catch (error) {
+    /* The toolkit still works if storage is unavailable. */
+  }
 }
 function showError(id, message) {
-  const el = $(id);
+  var el = byId(id);
   el.textContent = message;
   el.style.display = message ? "block" : "none";
 }
@@ -213,73 +233,52 @@ function mark(input, valid) {
   input.classList.toggle("invalid", !valid);
 }
 function clearMarks(inputs) {
-  inputs.forEach(input => input.classList.remove("valid", "invalid"));
+  inputs.forEach(function (input) {
+    input.classList.remove("valid", "invalid");
+  });
 }
 function showOverlay(id) {
-  $(id).classList.add("show");
-  $(id).setAttribute("aria-hidden", "false");
+  byId(id).classList.add("show");
+  byId(id).setAttribute("aria-hidden", "false");
 }
 function hideOverlay(id) {
-  $(id).classList.remove("show");
-  $(id).setAttribute("aria-hidden", "true");
+  byId(id).classList.remove("show");
+  byId(id).setAttribute("aria-hidden", "true");
 }
 function formatNumber(n) {
   return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(6)));
 }
 function stackDescription(full, extra) {
-  let result = full + (full === 1 ? " STACK" : " STACKS");
+  var result = full + (full === 1 ? " STACK" : " STACKS");
   if (extra > 0) result += " + " + formatNumber(extra) + " BLOCKS";
   return result;
 }
 function switchPage(page) {
-  $("oscPage").classList.toggle("hidden", page !== "osc");
-  $("blocksPage").classList.toggle("hidden", page !== "blocks");
-  document.querySelectorAll("[data-page]").forEach(button => {
-    const active = button.dataset.page === page;
+  byId("oscPage").classList.toggle("hidden", page !== "osc");
+  byId("blocksPage").classList.toggle("hidden", page !== "blocks");
+  document.querySelectorAll("[data-page]").forEach(function (button) {
+    var active = button.getAttribute("data-page") === page;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
 }
-document.querySelectorAll("[data-page]").forEach(button => {
-  button.addEventListener("click", () => switchPage(button.dataset.page));
-});
-document.querySelectorAll("[data-axis]").forEach(button => {
-  button.addEventListener("click", () => {
-    axis = button.dataset.axis;
-    document.querySelectorAll("[data-axis]").forEach(b => {
-      const active = b.dataset.axis === axis;
-      b.classList.toggle("active", active);
-      b.setAttribute("aria-pressed", String(active));
-    });
-    document.querySelectorAll(".axis-label").forEach(label => label.textContent = axis);
-  });
-});
 
-$("swapButton").addEventListener("click", () => {
-  const old = $("cannon").value;
-  $("cannon").value = $("target").value;
-  $("target").value = old;
-  clearMarks(oscInputs);
-  showError("oscError", "");
-});
-const oscInputs = [$("cannon"), $("target"), $("stackSize")];
-const blockInputs = [$("numStacks"), $("extraBlocks"), $("blockStackSize")];
-oscInputs.forEach(input => input.addEventListener("input", () => {
-  input.classList.remove("valid", "invalid");
-  showError("oscError", "");
-}));
-blockInputs.forEach(input => input.addEventListener("input", () => {
-  input.classList.remove("valid", "invalid");
-  showError("blocksError", "");
-}));
+var oscInputs = [byId("cannon"), byId("target"), byId("stackSize")];
+var blockInputs = [byId("numStacks"), byId("extraBlocks"), byId("blockStackSize")];
 
 function recordCalculation(data) {
   history.unshift({
-    id: Date.now() + Math.random(), title: data.title,
-    summary: data.summary, copyText: data.copyText, kind: data.kind,
-    axis: data.axis || null, cannon: data.cannon ?? null,
-    target: data.target ?? null, stackSize: data.stackSize,
-    stacks: data.stacks ?? null, extras: data.extras ?? null
+    id: Date.now() + Math.random(),
+    title: data.title,
+    summary: data.summary,
+    copyText: data.copyText,
+    kind: data.kind,
+    axis: data.axis || null,
+    cannon: data.cannon !== undefined ? data.cannon : null,
+    target: data.target !== undefined ? data.target : null,
+    stackSize: data.stackSize,
+    stacks: data.stacks !== undefined ? data.stacks : null,
+    extras: data.extras !== undefined ? data.extras : null
   });
   history = history.slice(0, 8);
   persist();
@@ -287,93 +286,130 @@ function recordCalculation(data) {
 }
 function openResult(data) {
   lastCalculation = data.copyText;
-  $("resultTitle").textContent = data.title;
-  $("resultSubtitle").textContent = data.subtitle;
-  $("resultLabel").textContent = data.resultLabel;
-  $("resultMain").textContent = data.main;
-  $("detailOneLabel").textContent = data.labels[0];
-  $("detailOne").textContent = data.values[0];
-  $("detailTwoLabel").textContent = data.labels[1];
-  $("detailTwo").textContent = data.values[1];
-  $("detailThreeLabel").textContent = data.labels[2];
-  $("detailThree").textContent = data.values[2];
+  byId("resultTitle").textContent = data.title;
+  byId("resultSubtitle").textContent = data.subtitle;
+  byId("resultLabel").textContent = data.resultLabel;
+  byId("resultMain").textContent = data.main;
+  byId("detailOneLabel").textContent = data.labels[0];
+  byId("detailOne").textContent = data.values[0];
+  byId("detailTwoLabel").textContent = data.labels[1];
+  byId("detailTwo").textContent = data.values[1];
+  byId("detailThreeLabel").textContent = data.labels[2];
+  byId("detailThree").textContent = data.values[2];
   showOverlay("resultOverlay");
 }
 
-$("oscForm").addEventListener("submit", event => {
+function calculateOSC(event) {
   event.preventDefault();
   showError("oscError", "");
-  const cText = $("cannon").value.trim(), tText = $("target").value.trim(), sText = $("stackSize").value.trim();
-  const cannon = Number(cText), target = Number(tText), stack = Number(sText);
-  const cv = cText !== "" && Number.isFinite(cannon);
-  const tv = tText !== "" && Number.isFinite(target);
-  const sv = sText !== "" && Number.isSafeInteger(stack) && stack > 0;
-  mark($("cannon"), cv); mark($("target"), tv); mark($("stackSize"), sv);
+  var cText = byId("cannon").value.trim();
+  var tText = byId("target").value.trim();
+  var sText = byId("stackSize").value.trim();
+  var cannon = Number(cText);
+  var target = Number(tText);
+  var stack = Number(sText);
+  var cv = cText !== "" && Number.isFinite(cannon);
+  var tv = tText !== "" && Number.isFinite(target);
+  var sv = sText !== "" && Number.isSafeInteger(stack) && stack > 0;
+  mark(byId("cannon"), cv);
+  mark(byId("target"), tv);
+  mark(byId("stackSize"), sv);
   if (!cv || !tv || !sv) {
     showError("oscError", "Enter valid coordinates and a positive whole-number stack size.");
     return;
   }
-  const distance = Math.abs(target - cannon);
+  var distance = Math.abs(target - cannon);
   if (!Number.isFinite(distance)) {
     showError("oscError", "Those coordinates are too large to calculate.");
     return;
   }
-  const full = Math.floor(distance / stack), extra = distance - full * stack;
-  const main = distance === 0 ? "0 BLOCKS" : stackDescription(full, extra);
-  const copyText = "OSC CALCULATOR\nAxis: " + axis + "\nCannon coordinate: " + cText + "\nTarget coordinate: " + tText + "\nDistance: " + formatNumber(distance) + " blocks\nRequired supply: " + main + "\nFull stacks: " + full + "\nExtra blocks: " + formatNumber(extra) + "\nBlocks per stack: " + stack;
-  const data = {
-    kind:"osc", title:"CALCULATION LOCKED IN", subtitle:"DISTANCE ALONG " + axis + " AXIS",
-    resultLabel:"REQUIRED BLOCK SUPPLY", main,
-    labels:["Total distance","Full stacks","Extra blocks"],
-    values:[formatNumber(distance)+" blocks",String(full),formatNumber(extra)],
-    copyText, summary:formatNumber(distance)+" blocks · "+main,
-    axis,cannon:cText,target:tText,stackSize:stack
+  var full = Math.floor(distance / stack);
+  var extra = Number((distance - full * stack).toFixed(8));
+  var main = distance === 0 ? "0 BLOCKS" : stackDescription(full, extra);
+  var copyText = "OSC CALCULATOR\nAxis: " + axis +
+    "\nCannon coordinate: " + cText +
+    "\nTarget coordinate: " + tText +
+    "\nDistance: " + formatNumber(distance) + " blocks" +
+    "\nRequired supply: " + main +
+    "\nFull stacks: " + full +
+    "\nExtra blocks: " + formatNumber(extra) +
+    "\nBlocks per stack: " + stack;
+  var data = {
+    kind: "osc",
+    title: "CALCULATION LOCKED IN",
+    subtitle: "DISTANCE ALONG " + axis + " AXIS",
+    resultLabel: "REQUIRED BLOCK SUPPLY",
+    main: main,
+    labels: ["Total distance", "Full stacks", "Extra blocks"],
+    values: [formatNumber(distance) + " blocks", String(full), formatNumber(extra)],
+    copyText: copyText,
+    summary: formatNumber(distance) + " blocks · " + main,
+    axis: axis,
+    cannon: cText,
+    target: tText,
+    stackSize: stack
   };
-  recordCalculation(data); openResult(data);
-});
+  recordCalculation(data);
+  openResult(data);
+}
 
-$("blocksForm").addEventListener("submit", event => {
+function calculateBlocks(event) {
   event.preventDefault();
   showError("blocksError", "");
-  const stackText = $("numStacks").value.trim(), extraText = $("extraBlocks").value.trim(), sizeText = $("blockStackSize").value.trim();
-  const stacks = Number(stackText), extras = Number(extraText), stackSize = Number(sizeText);
-  const sv = stackText !== "" && Number.isSafeInteger(stacks) && stacks >= 0;
-  const ev = extraText !== "" && Number.isSafeInteger(extras) && extras >= 0;
-  const zv = sizeText !== "" && Number.isSafeInteger(stackSize) && stackSize > 0;
-  mark($("numStacks"),sv); mark($("extraBlocks"),ev); mark($("blockStackSize"),zv);
+  var stackText = byId("numStacks").value.trim();
+  var extraText = byId("extraBlocks").value.trim();
+  var sizeText = byId("blockStackSize").value.trim();
+  var stacks = Number(stackText);
+  var extras = Number(extraText);
+  var stackSize = Number(sizeText);
+  var sv = stackText !== "" && Number.isSafeInteger(stacks) && stacks >= 0;
+  var ev = extraText !== "" && Number.isSafeInteger(extras) && extras >= 0;
+  var zv = sizeText !== "" && Number.isSafeInteger(stackSize) && stackSize > 0;
+  mark(byId("numStacks"), sv);
+  mark(byId("extraBlocks"), ev);
+  mark(byId("blockStackSize"), zv);
   if (!sv || !ev || !zv) {
-    showError("blocksError","Use non-negative whole numbers and a positive stack size.");
+    showError("blocksError", "Use non-negative whole numbers and a positive stack size.");
     return;
   }
-  const total = stacks * stackSize + extras;
+  var total = stacks * stackSize + extras;
   if (!Number.isSafeInteger(total)) {
-    showError("blocksError","That block amount is too large.");
+    showError("blocksError", "That block amount is too large.");
     return;
   }
-  const full = Math.floor(total / stackSize), remainder = total % stackSize;
-  const main = total + (total === 1 ? " BLOCK" : " BLOCKS");
-  const copyText = "BLOCK CALCULATOR\nStacks entered: "+stacks+"\nExtra blocks entered: "+extras+"\nBlocks per stack: "+stackSize+"\nTotal supply: "+total+" blocks\nEquivalent stacks: "+full+"\nRemainder: "+remainder+" blocks";
-  const data = {
-    kind:"blocks",title:"SUPPLY CALCULATED",subtitle:"YOUR TOTAL BLOCK SUPPLY",
-    resultLabel:"TOTAL BLOCKS AVAILABLE",main,
-    labels:["Stacks entered","Extra blocks entered","Stack size"],
-    values:[String(stacks),String(extras),String(stackSize)],
-    copyText,summary:total+" blocks · "+full+" stacks + "+remainder,
-    stacks,extras,stackSize
+  var full = Math.floor(total / stackSize);
+  var remainder = total % stackSize;
+  var main = total + (total === 1 ? " BLOCK" : " BLOCKS");
+  var copyText = "BLOCK CALCULATOR\nStacks entered: " + stacks +
+    "\nExtra blocks entered: " + extras +
+    "\nBlocks per stack: " + stackSize +
+    "\nTotal supply: " + total + " blocks" +
+    "\nEquivalent stacks: " + full +
+    "\nRemainder: " + remainder + " blocks";
+  var data = {
+    kind: "blocks",
+    title: "SUPPLY CALCULATED",
+    subtitle: "YOUR TOTAL BLOCK SUPPLY",
+    resultLabel: "TOTAL BLOCKS AVAILABLE",
+    main: main,
+    labels: ["Stacks entered", "Extra blocks entered", "Stack size"],
+    values: [String(stacks), String(extras), String(stackSize)],
+    copyText: copyText,
+    summary: total + " blocks · " + full + " stacks + " + remainder,
+    stacks: stacks,
+    extras: extras,
+    stackSize: stackSize
   };
-  recordCalculation(data); openResult(data);
-});
+  recordCalculation(data);
+  openResult(data);
+}
 
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch(e) {
-    const temp = document.createElement("textarea");
-    temp.value = text;
-    temp.style.position = "fixed";
-    temp.style.opacity = "0";
-    document.body.appendChild(temp);
-    temp.select();
-    let ok = false;
- 
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(function () {
+      return true;
+    }).catch(function () {
+      return fallbackCopy(text);
+    });
+  }
+  return Promise.resolve(fa
