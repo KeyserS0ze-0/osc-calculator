@@ -12,15 +12,14 @@
   color-scheme: dark;
   --black: #050505;
   --panel: #101010;
-  --raised: #181818;
-  --white: #ffffff;
-  --muted: #a3a3a3;
-  --border: #353535;
+  --white: #fff;
+  --muted: #999;
+  --border: #303030;
+  --red: #ff3030;
+  --green: #39ff88;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -28,7 +27,7 @@ body {
   padding: 28px 16px;
   background: var(--black);
   color: var(--white);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: system-ui, sans-serif;
 }
 
 main {
@@ -37,43 +36,38 @@ main {
   margin: auto;
 }
 
-header {
-  margin: 12px 0 28px;
-}
+header { margin: 12px 0 28px; }
 
 .topline {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
 }
 
-.eyebrow {
-  color: var(--muted);
+.eyebrow, .section-title, .small {
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 3px;
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 
+.eyebrow, .small { color: var(--muted); }
+
 h1 {
-  margin: 14px 0 6px;
-  font-size: clamp(26px, 7vw, 34px);
-  font-weight: 950;
-  line-height: 1.05;
+  margin: 18px 0 8px;
+  font-size: clamp(30px, 8vw, 42px);
+  line-height: 1;
   letter-spacing: -1.5px;
 }
 
-.subtitle {
-  color: var(--muted);
-  font-size: 13px;
-}
+.subtitle { color: var(--muted); font-size: 13px; }
 
 .mark {
   display: grid;
   place-items: center;
   width: 48px;
   height: 48px;
-  border: 2px solid var(--white);
+  border: 2px solid white;
   font-size: 27px;
   font-weight: 950;
 }
@@ -86,158 +80,154 @@ h1 {
   border-radius: 12px;
 }
 
-.section-title {
-  margin-bottom: 18px;
-  color: var(--white);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 2px;
-}
+.section-title { margin-bottom: 18px; }
 
 label {
   display: block;
-  margin: 16px 0 8px;
+  margin: 17px 0 8px;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: .6px;
+  letter-spacing: .5px;
 }
 
 input {
   display: block;
   width: 100%;
   min-height: 52px;
-  padding: 13px 14px;
-  border: 1px solid #444;
+  padding: 13px;
+  border: 1px solid #454545;
   border-radius: 7px;
   outline: none;
   background: #080808;
-  color: var(--white);
+  color: white;
   font: inherit;
   font-size: 20px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  transition: border-color .15s;
+  transition: border-color .2s, box-shadow .2s;
 }
 
-input:focus {
-  border-color: var(--white);
-}
-
-input:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--white);
+input:focus-visible, button:focus-visible {
+  outline: 2px solid white;
   outline-offset: 3px;
 }
 
+input.empty {
+  border-color: var(--red);
+  animation: redPulse 1.5s ease-in-out infinite;
+}
+
+input.valid {
+  border-color: var(--green);
+  box-shadow: 0 0 8px #39ff8830;
+}
+
+input.flash { animation: greenFlash .65s ease-out; }
+
+input.invalid {
+  border-color: var(--red);
+  box-shadow: 0 0 12px #ff303050;
+}
+
+@keyframes redPulse {
+  0%, 100% { box-shadow: 0 0 3px #ff303025; }
+  50% { box-shadow: 0 0 15px #ff3030a0; }
+}
+
+@keyframes greenFlash {
+  0% {
+    background: #39ff8860;
+    box-shadow: 0 0 25px #39ff88;
+  }
+  100% {
+    background: #080808;
+    box-shadow: 0 0 8px #39ff8830;
+  }
+}
+
 .hint {
-  margin-top: 7px;
+  margin-top: 8px;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
 }
 
-.result-panel {
-  padding: 0;
-  overflow: hidden;
-}
+.result-panel { padding: 0; overflow: hidden; }
 
 .result-head {
   padding: 20px;
   border-bottom: 1px solid var(--border);
 }
 
-.small {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-}
-
 .result {
-  margin-top: 8px;
-  font-size: clamp(34px, 10vw, 46px);
-  line-height: 1.1;
+  margin-top: 10px;
+  font-size: clamp(36px, 10vw, 46px);
   font-weight: 950;
-  letter-spacing: -1.5px;
+  line-height: 1.1;
+  letter-spacing: -1px;
   overflow-wrap: anywhere;
-  font-variant-numeric: tabular-nums;
 }
 
 .result-unit {
-  margin-left: 5px;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 12px;
   letter-spacing: 1px;
 }
 
-.result-body {
-  padding: 6px 20px 18px;
-}
+.result-body { padding: 6px 20px 18px; }
 
 .line {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
   padding: 15px 0;
   border-bottom: 1px solid var(--border);
 }
 
-.line span {
-  color: #c2c2c2;
-  font-size: 13px;
-}
+.line span { color: #bbb; font-size: 13px; }
 
 .line strong {
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 950;
   font-variant-numeric: tabular-nums;
 }
 
-.line:last-child {
-  border-bottom: 0;
-}
+.line:last-of-type { border-bottom: 0; }
 
 button {
   width: 100%;
   min-height: 52px;
   margin-top: 12px;
   padding: 14px;
-  border: 2px solid var(--white);
+  border: 2px solid white;
   border-radius: 7px;
-  background: var(--white);
-  color: var(--black);
+  background: white;
+  color: black;
   font: inherit;
   font-size: 13px;
   font-weight: 950;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: background .15s, color .15s,
-              transform .15s;
+  transition: background .15s, transform .15s;
 }
 
-button:hover {
-  background: #d6d6d6;
-}
-
-button:active {
-  transform: scale(.985);
-}
+button:hover { background: #d8d8d8; }
+button:active { transform: scale(.985); }
 
 .secondary {
   margin-top: 8px;
   background: transparent;
-  color: var(--white);
+  color: white;
 }
 
 .secondary:hover {
-  background: var(--raised);
-  color: var(--white);
+  background: #181818;
+  color: white;
 }
 
 #status {
   min-height: 18px;
-  margin-top: 10px;
+  margin-top: 12px;
   color: var(--muted);
   font-size: 12px;
   text-align: center;
@@ -248,12 +238,13 @@ footer {
   padding: 12px 4px;
   color: #777;
   font-size: 11px;
-  line-height: 1.7;
+  line-height: 1.8;
   text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
+    animation: none !important;
     transition: none !important;
   }
 }
@@ -275,65 +266,78 @@ footer {
   </header>
 
   <section class="panel">
-    <div class="section-title">01 / COORDINATE INPUT</div>
+    <div class="section-title">01 / X COORDINATES</div>
 
-    <label for="cannon">CANNON X & Y COORDINATE</label>
-    <input id="cannon" type="number" step="any"
-           value="250" inputmode="decimal">
+    <label for="cannonX">CANNON X</label>
+    <input id="cannonX" type="number" step="any"
+           placeholder="Enter cannon X" inputmode="decimal">
 
-    <label for="target">TARGET X & Y COORDINATE</label>
-    <input id="target" type="number" step="any"
-           value="1000" inputmode="decimal">
+    <label for="targetX">TARGET X</label>
+    <input id="targetX" type="number" step="any"
+           placeholder="Enter target X" inputmode="decimal">
   </section>
 
   <section class="panel">
-    <div class="section-title">02 / STACK CONFIGURATION</div>
+    <div class="section-title">02 / Z COORDINATES</div>
+
+    <label for="cannonZ">CANNON Z</label>
+    <input id="cannonZ" type="number" step="any"
+           placeholder="Enter cannon Z" inputmode="decimal">
+
+    <label for="targetZ">TARGET Z</label>
+    <input id="targetZ" type="number" step="any"
+           placeholder="Enter target Z" inputmode="decimal">
+  </section>
+
+  <section class="panel">
+    <div class="section-title">03 / STACK CONFIGURATION</div>
 
     <label for="stack">BLOCKS PER STACK</label>
-    <input id="stack" type="number" min="1"
-           step="1" value="64" inputmode="numeric">
+    <input id="stack" type="number" min="1" step="1"
+           value="64" inputmode="numeric">
 
     <div class="hint">
-      How many blocks fit in one stack.
       Standard Minecraft stacks usually contain 64 blocks.
     </div>
   </section>
 
   <section class="panel result-panel" aria-live="polite">
     <div class="result-head">
-      <div class="small">03 / HORIZONTAL DISTANCE</div>
+      <div class="small">04 / STRAIGHT-LINE DISTANCE</div>
       <div class="result">
-        <span id="distance">750</span>
+        <span id="distance">—</span>
         <span class="result-unit">BLOCKS</span>
       </div>
     </div>
 
     <div class="result-body">
       <div class="line">
+        <span>X DISTANCE</span>
+        <strong id="dx">—</strong>
+      </div>
+
+      <div class="line">
+        <span>Z DISTANCE</span>
+        <strong id="dz">—</strong>
+      </div>
+
+      <div class="line">
         <span>FULL STACKS</span>
-        <strong id="stacks">11</strong>
+        <strong id="stacks">—</strong>
       </div>
 
       <div class="line">
         <span>REMAINING BLOCKS</span>
-        <strong id="extra">46</strong>
+        <strong id="extra">—</strong>
       </div>
 
-      <div class="line">
-        <span>TOTAL DISTANCE</span>
-        <strong id="total">750</strong>
-      </div>
-
-      <button id="copy" type="button">
-        COPY CALCULATION
-      </button>
+      <button id="copy" type="button">COPY CALCULATION</button>
 
       <button id="reset" class="secondary" type="button">
-        RESET VALUES
+        RESET COORDINATES TO ZERO
       </button>
 
-      <div id="status" role="status"
-           aria-live="polite"></div>
+      <div id="status" role="status" aria-live="polite"></div>
     </div>
   </section>
 
@@ -344,87 +348,141 @@ footer {
 </main>
 
 <script>
-const cannon = document.getElementById("cannon");
-const target = document.getElementById("target");
-const stack = document.getElementById("stack");
+const ids = ["cannonX", "targetX", "cannonZ", "targetZ", "stack"];
+const fields = ids.map(id => document.getElementById(id));
 const status = document.getElementById("status");
+const previousValid = new Set();
+const flashTimers = new Map();
 
 let calculation = "";
 
-function calculate() {
-  const a = Number(cannon.value);
-  const b = Number(target.value);
-  const size = Number(stack.value);
+function setOutput(id, value) {
+  document.getElementById(id).textContent = value;
+}
 
-  const valid =
-    cannon.value.trim() !== "" &&
-    target.value.trim() !== "" &&
-    stack.value.trim() !== "" &&
-    Number.isFinite(a) &&
-    Number.isFinite(b) &&
-    Number.isInteger(size) &&
-    size > 0;
+function updateField(input) {
+  const wasValid = previousValid.has(input.id);
+  const value = input.value.trim();
+
+  input.classList.remove("empty", "valid", "invalid");
+
+  if (value === "") {
+    input.classList.remove("flash");
+    clearTimeout(flashTimers.get(input.id));
+    previousValid.delete(input.id);
+    input.classList.add("empty");
+    return false;
+  }
+
+  const n = Number(value);
+  const isStack = input.id === "stack";
+  const valid = Number.isFinite(n) &&
+    (!isStack || (Number.isInteger(n) && n > 0));
 
   if (!valid) {
-    ["distance", "stacks", "extra", "total"]
-      .forEach(id => {
-        document.getElementById(id).textContent = "—";
-      });
+    input.classList.remove("flash");
+    clearTimeout(flashTimers.get(input.id));
+    previousValid.delete(input.id);
+    input.classList.add("invalid");
+    return false;
+  }
+
+  previousValid.add(input.id);
+
+  if (!wasValid) {
+    input.classList.remove("flash");
+    void input.offsetWidth;
+    input.classList.add("flash");
+
+    clearTimeout(flashTimers.get(input.id));
+    flashTimers.set(input.id, setTimeout(() => {
+      input.classList.remove("flash");
+      if (input.value.trim() !== "") {
+        input.classList.add("valid");
+      }
+    }, 650));
+  } else if (!input.classList.contains("flash")) {
+    input.classList.add("valid");
+  }
+
+  return true;
+}
+
+function calculate() {
+  const validity = fields.map(updateField);
+  const allFilled = fields.every(input => input.value.trim() !== "");
+  const allValid = validity.every(Boolean);
+
+  if (!allFilled || !allValid) {
+    ["distance", "dx", "dz", "stacks", "extra"]
+      .forEach(id => setOutput(id, "—"));
 
     calculation = "";
-    status.textContent =
-      "Enter valid coordinates and a positive whole stack size.";
+    status.textContent = !allFilled
+      ? "AWAITING COORDINATES"
+      : "CHECK INVALID INPUTS";
     return;
   }
 
-  const d = Math.abs(b - a);
-  const full = Math.floor(d / size);
-  const extra = d % size;
+  const [cx, tx, cz, tz, size] =
+    fields.map(input => Number(input.value));
 
-  document.getElementById("distance").textContent = d;
-  document.getElementById("stacks").textContent = full;
-  document.getElementById("extra").textContent = extra;
-  document.getElementById("total").textContent = d;
+  const dx = Math.abs(tx - cx);
+  const dz = Math.abs(tz - cz);
+  const distance = Math.hypot(dx, dz);
+  const full = Math.floor(distance / size);
+  const extra = Number((distance - full * size).toFixed(3));
+
+  setOutput("dx", dx);
+  setOutput("dz", dz);
+  setOutput("distance", Number(distance.toFixed(3)));
+  setOutput("stacks", full);
+  setOutput("extra", extra);
 
   calculation =
-    `${d} blocks = ${full} stacks + ${extra} blocks`;
+    `X distance: ${dx} blocks\n` +
+    `Z distance: ${dz} blocks\n` +
+    `Straight-line distance: ${distance.toFixed(3)} blocks\n` +
+    `${full} full stacks + ${extra} blocks`;
 
-  status.textContent = "";
+  status.textContent = "COORDINATES VERIFIED";
 }
 
-[cannon, target, stack].forEach(input => {
+fields.forEach(input => {
   input.addEventListener("input", calculate);
 });
 
-document.getElementById("copy").addEventListener(
-  "click", async () => {
-    if (!calculation) {
-      status.textContent = "Enter valid values first.";
-      return;
-    }
-
-    try {
-      if (!navigator.clipboard?.writeText) {
-        throw new Error("Clipboard unavailable");
-      }
-
-      await navigator.clipboard.writeText(calculation);
-      status.textContent = "Calculation copied successfully.";
-    } catch {
-      status.textContent = calculation;
-    }
+document.getElementById("copy").addEventListener("click", async () => {
+  if (!calculation) {
+    status.textContent = "Enter valid values first.";
+    return;
   }
-);
 
-document.getElementById("reset").addEventListener(
-  "click", () => {
-    cannon.value = "250";
-    target.value = "1000";
-    stack.value = "64";
-    calculate();
-    status.textContent = "Values reset.";
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error();
+    await navigator.clipboard.writeText(calculation);
+    status.textContent = "CALCULATION COPIED";
+  } catch {
+    status.textContent = calculation;
   }
-);
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  ["cannonX", "targetX", "cannonZ", "targetZ"].forEach(id => {
+    const input = document.getElementById(id);
+    input.value = "0";
+    previousValid.delete(id);
+    clearTimeout(flashTimers.get(id));
+  });
+
+  // Preserve the standard stack size.
+  document.getElementById("stack").value = "64";
+  previousValid.delete("stack");
+  clearTimeout(flashTimers.get("stack"));
+
+  calculate();
+  status.textContent = "SYSTEM RESET — COORDINATES ZEROED";
+});
 
 calculate();
 </script>
