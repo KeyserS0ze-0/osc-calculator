@@ -83,8 +83,12 @@ input.valid {
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 #e5393922; }
-  50% { box-shadow: 0 0 10px 2px #e5393955; }
+  0%, 100% {
+    box-shadow: 0 0 0 0 #e5393922;
+  }
+  50% {
+    box-shadow: 0 0 10px 2px #e5393955;
+  }
 }
 
 .hint {
@@ -98,28 +102,26 @@ button {
   min-height: 52px;
   margin-top: 16px;
   padding: 13px;
-  border: none;
+  border: 1px solid #444;
   border-radius: 10px;
+  background: #292929;
+  color: #f5f5f5;
   font-size: 14px;
   font-weight: bold;
   letter-spacing: .5px;
   cursor: pointer;
   touch-action: manipulation;
+  transition: background .2s, border-color .2s, transform .1s;
 }
 
-.lock-button {
-  background: #e8e8e8;
-  color: #111;
+button:hover {
+  background: #353535;
+  border-color: #666;
 }
 
-.lock-button:active {
+button:active {
+  background: #202020;
   transform: scale(.98);
-}
-
-.secondary {
-  background: #292929;
-  color: white;
-  border: 1px solid #444;
 }
 
 .status {
@@ -132,6 +134,7 @@ button {
   font-size: 12px;
   font-weight: bold;
   letter-spacing: .5px;
+  overflow-wrap: anywhere;
 }
 
 .status.success {
@@ -192,6 +195,7 @@ button {
     <label class="label" for="cannon">
       YOUR LOCATION (X, Z)
     </label>
+
     <input
       id="cannon"
       type="text"
@@ -202,11 +206,15 @@ button {
       placeholder="Example: 250, 100"
       aria-label="Your X and Z coordinates"
     >
-    <div class="hint">Enter both coordinates, separated by a comma.</div>
+
+    <div class="hint">
+      Enter both coordinates, separated by a comma.
+    </div>
 
     <label class="label" for="target">
       TARGET LOCATION (X, Z)
     </label>
+
     <input
       id="target"
       type="text"
@@ -221,6 +229,7 @@ button {
     <label class="label" for="stack">
       BLOCKS PER STACK
     </label>
+
     <input
       id="stack"
       type="number"
@@ -232,7 +241,7 @@ button {
     >
 
     <button class="lock-button" type="submit">
-      🔒 LOCK IN &amp; CALCULATE
+      LOCK IN &amp; CALCULATE
     </button>
   </form>
 
@@ -274,15 +283,17 @@ button {
     </div>
   </div>
 
-  <button id="copy" class="secondary" type="button">
+  <button id="copy" type="button">
     COPY CALCULATION
   </button>
 
-  <button id="reset" class="secondary" type="button">
+  <button id="reset" type="button">
     RESET CALCULATOR
   </button>
 
-  <div class="footer">OSC SYSTEM · READY WHEN YOU ARE</div>
+  <div class="footer">
+    OSC SYSTEM · READY WHEN YOU ARE
+  </div>
 </div>
 
 <script>
@@ -292,7 +303,6 @@ const target = document.getElementById("target");
 const stack = document.getElementById("stack");
 const statusBox = document.getElementById("status");
 
-const coordinateFields = [cannon, target];
 const allFields = [cannon, target, stack];
 
 let lockedResult = null;
@@ -323,10 +333,16 @@ function setStatus(message, success = false) {
 }
 
 function clearResults() {
-  ["distance", "dx", "dz", "stacks", "remaining", "total"]
-    .forEach(id => {
-      document.getElementById(id).textContent = "—";
-    });
+  [
+    "distance",
+    "dx",
+    "dz",
+    "stacks",
+    "remaining",
+    "total"
+  ].forEach(id => {
+    document.getElementById(id).textContent = "—";
+  });
 }
 
 function validateCoordinates(field) {
@@ -345,9 +361,10 @@ function validateCoordinates(field) {
 }
 
 function calculate(event) {
-  if (event) event.preventDefault();
+  if (event) {
+    event.preventDefault();
+  }
 
-  // Close the mobile keyboard when possible.
   if (document.activeElement instanceof HTMLElement) {
     document.activeElement.blur();
   }
@@ -356,13 +373,15 @@ function calculate(event) {
   const targetValid = validateCoordinates(target);
 
   const stackValue = Number(stack.value);
+
   const stackValid =
     stack.value.trim() !== "" &&
     Number.isSafeInteger(stackValue) &&
     stackValue > 0;
 
-  stack.className = stackValid ? "" :
-    (stack.value.trim() ? "invalid" : "empty");
+  stack.className = stackValid
+    ? ""
+    : (stack.value.trim() ? "invalid" : "empty");
 
   if (!cannonValid || !targetValid || !stackValid) {
     lockedResult = null;
@@ -390,7 +409,13 @@ function calculate(event) {
   const remaining = total % stackValue;
 
   lockedResult = {
-    dx, dz, distance, total, fullStacks, remaining, stackValue
+    dx,
+    dz,
+    distance,
+    total,
+    fullStacks,
+    remaining,
+    stackValue
   };
 
   cannon.className = "valid";
@@ -400,8 +425,11 @@ function calculate(event) {
   document.getElementById("distance").textContent =
     distance.toFixed(2) + " blocks";
 
-  document.getElementById("dx").textContent = dx + " blocks";
-  document.getElementById("dz").textContent = dz + " blocks";
+  document.getElementById("dx").textContent =
+    dx + " blocks";
+
+  document.getElementById("dz").textContent =
+    dz + " blocks";
 
   document.getElementById("stacks").textContent =
     fullStacks + " stacks";
@@ -412,23 +440,22 @@ function calculate(event) {
   document.getElementById("total").textContent =
     total + " blocks";
 
-  setStatus("✓ COORDINATES LOCKED — CALCULATION COMPLETE", true);
+  setStatus("COORDINATES LOCKED — CALCULATION COMPLETE", true);
 }
 
 form.addEventListener("submit", calculate);
 
-// Editing any value unlocks the previous result until recalculated.
 allFields.forEach(field => {
   field.addEventListener("input", () => {
     lockedResult = null;
     clearResults();
+
     setStatus("INPUT CHANGED — LOCK IN TO RECALCULATE");
 
     if (field === cannon || field === target) {
       validateCoordinates(field);
     } else {
-      field.className =
-        field.value.trim() ? "" : "empty";
+      field.className = field.value.trim() ? "" : "empty";
     }
   });
 });
@@ -440,6 +467,7 @@ document.getElementById("copy").addEventListener("click", async () => {
   }
 
   const r = lockedResult;
+
   const text =
     `OSC STRIKE CALCULATION\n` +
     `Your location: ${cannon.value}\n` +
@@ -454,9 +482,8 @@ document.getElementById("copy").addEventListener("click", async () => {
 
   try {
     await navigator.clipboard.writeText(text);
-    setStatus("✓ CALCULATION COPIED", true);
+    setStatus("CALCULATION COPIED", true);
   } catch {
-    // Fallback for browsers where clipboard access is restricted.
     const temporary = document.createElement("textarea");
     temporary.value = text;
     document.body.appendChild(temporary);
@@ -466,8 +493,9 @@ document.getElementById("copy").addEventListener("click", async () => {
     temporary.remove();
 
     setStatus(
-      copied ? "✓ CALCULATION COPIED" :
-        "COPY FAILED — PLEASE COPY MANUALLY",
+      copied
+        ? "CALCULATION COPIED"
+        : "COPY FAILED — PLEASE COPY MANUALLY",
       copied
     );
   }
@@ -481,15 +509,17 @@ document.getElementById("reset").addEventListener("click", () => {
   lockedResult = null;
   clearResults();
 
-  allFields.forEach(field => field.className = "");
+  allFields.forEach(field => {
+    field.className = "";
+  });
 
   setStatus("RESET COMPLETE — TAP LOCK IN TO CALCULATE");
 });
 
-// Initial appearance: coordinates are empty and need to be entered.
-coordinateFields.forEach(field => {
-  field.className = "empty";
-});
+// Start with empty coordinate fields pulsing red.
+cannon.className = "empty";
+target.className = "empty";
 </script>
+
 </body>
 </html>
