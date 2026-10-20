@@ -265,8 +265,9 @@ footer {
     </div>
   </header>
 
+  <!-- Combined X & Z coordinates -->
   <section class="panel">
-    <div class="section-title">01 / X COORDINATES</div>
+    <div class="section-title">01 / X &amp; Z COORDINATES</div>
 
     <label for="cannonX">CANNON X</label>
     <input id="cannonX" type="number" step="any"
@@ -275,10 +276,6 @@ footer {
     <label for="targetX">TARGET X</label>
     <input id="targetX" type="number" step="any"
            placeholder="Enter target X" inputmode="decimal">
-  </section>
-
-  <section class="panel">
-    <div class="section-title">02 / Z COORDINATES</div>
 
     <label for="cannonZ">CANNON Z</label>
     <input id="cannonZ" type="number" step="any"
@@ -290,7 +287,7 @@ footer {
   </section>
 
   <section class="panel">
-    <div class="section-title">03 / STACK CONFIGURATION</div>
+    <div class="section-title">02 / STACK CONFIGURATION</div>
 
     <label for="stack">BLOCKS PER STACK</label>
     <input id="stack" type="number" min="1" step="1"
@@ -303,7 +300,7 @@ footer {
 
   <section class="panel result-panel" aria-live="polite">
     <div class="result-head">
-      <div class="small">04 / STRAIGHT-LINE DISTANCE</div>
+      <div class="small">03 / HORIZONTAL DISTANCE</div>
       <div class="result">
         <span id="distance">—</span>
         <span class="result-unit">BLOCKS</span>
@@ -442,7 +439,7 @@ function calculate() {
   calculation =
     `X distance: ${dx} blocks\n` +
     `Z distance: ${dz} blocks\n` +
-    `Straight-line distance: ${distance.toFixed(3)} blocks\n` +
+    `Horizontal distance: ${distance.toFixed(3)} blocks\n` +
     `${full} full stacks + ${extra} blocks`;
 
   status.textContent = "COORDINATES VERIFIED";
@@ -475,7 +472,7 @@ document.getElementById("reset").addEventListener("click", () => {
     clearTimeout(flashTimers.get(id));
   });
 
-  // Preserve the standard stack size.
+  // Keep the stack size at 64.
   document.getElementById("stack").value = "64";
   previousValid.delete("stack");
   clearTimeout(flashTimers.get("stack"));
