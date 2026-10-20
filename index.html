@@ -3,367 +3,309 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#050505">
-<title>OSC | Strike Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSC Strike Calculator</title>
 
 <style>
-:root {
-  color-scheme: dark;
-  --black: #050505;
-  --panel: #101010;
-  --white: #fff;
-  --muted: #999;
-  --border: #303030;
-  --red: #ff3030;
-  --green: #39ff88;
+* {
+  box-sizing: border-box;
 }
-
-* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  min-height: 100vh;
-  padding: 28px 16px;
-  background: var(--black);
-  color: var(--white);
-  font-family: system-ui, sans-serif;
+  padding: 20px;
+  background: #090909;
+  color: #f5f5f5;
+  font-family: Arial, sans-serif;
 }
 
-main {
-  width: 100%;
-  max-width: 480px;
+.container {
+  max-width: 520px;
   margin: auto;
+  padding: 24px;
+  background: #151515;
+  border: 1px solid #333;
+  border-radius: 18px;
 }
 
-header { margin: 12px 0 28px; }
-
-.topline {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+.header {
+  text-align: center;
+  margin-bottom: 26px;
 }
 
-.eyebrow, .section-title, .small {
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 2px;
-}
-
-.eyebrow, .small { color: var(--muted); }
-
-h1 {
-  margin: 18px 0 8px;
-  font-size: clamp(30px, 8vw, 42px);
-  line-height: 1;
-  letter-spacing: -1.5px;
-}
-
-.subtitle { color: var(--muted); font-size: 13px; }
-
-.mark {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 2px solid white;
-  font-size: 27px;
-  font-weight: 950;
-}
-
-.panel {
-  padding: 20px;
-  margin-bottom: 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-
-.section-title { margin-bottom: 18px; }
-
-label {
-  display: block;
-  margin: 17px 0 8px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .5px;
-}
-
-input {
-  display: block;
-  width: 100%;
-  min-height: 52px;
-  padding: 13px;
-  border: 1px solid #454545;
-  border-radius: 7px;
-  outline: none;
-  background: #080808;
-  color: white;
-  font: inherit;
-  font-size: 20px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  transition: border-color .2s, box-shadow .2s;
-}
-
-input:focus-visible, button:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 3px;
-}
-
-input.empty {
-  border-color: var(--red);
-  animation: redPulse 1.5s ease-in-out infinite;
-}
-
-input.valid {
-  border-color: var(--green);
-  box-shadow: 0 0 8px #39ff8830;
-}
-
-input.flash { animation: greenFlash .65s ease-out; }
-
-input.invalid {
-  border-color: var(--red);
-  box-shadow: 0 0 12px #ff303050;
-}
-
-@keyframes redPulse {
-  0%, 100% { box-shadow: 0 0 3px #ff303025; }
-  50% { box-shadow: 0 0 15px #ff3030a0; }
-}
-
-@keyframes greenFlash {
-  0% {
-    background: #39ff8860;
-    box-shadow: 0 0 25px #39ff88;
-  }
-  100% {
-    background: #080808;
-    box-shadow: 0 0 8px #39ff8830;
-  }
-}
-
-.hint {
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.result-panel { padding: 0; overflow: hidden; }
-
-.result-head {
-  padding: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.result {
-  margin-top: 10px;
-  font-size: clamp(36px, 10vw, 46px);
-  font-weight: 950;
-  line-height: 1.1;
-  letter-spacing: -1px;
-  overflow-wrap: anywhere;
-}
-
-.result-unit {
-  font-size: 12px;
+.header h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
   letter-spacing: 1px;
 }
 
-.result-body { padding: 6px 20px 18px; }
-
-.line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 0;
-  border-bottom: 1px solid var(--border);
+.header p {
+  color: #999;
+  font-size: 13px;
 }
 
-.line span { color: #bbb; font-size: 13px; }
-
-.line strong {
-  font-size: 22px;
-  font-weight: 950;
-  font-variant-numeric: tabular-nums;
+.label {
+  display: block;
+  margin: 20px 0 8px;
+  color: #ddd;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
-.line:last-of-type { border-bottom: 0; }
+input {
+  width: 100%;
+  min-height: 54px;
+  padding: 14px;
+  border: 2px solid #b83232;
+  border-radius: 10px;
+  background: #0b0b0b;
+  color: white;
+  font-size: 18px;
+  outline: none;
+  transition: border-color .2s, background .2s;
+}
+
+input:focus {
+  border-color: #ff6868;
+}
+
+input.empty,
+input.invalid {
+  border-color: #e53939;
+  animation: pulse 1.3s infinite;
+}
+
+input.valid {
+  border-color: #32d879;
+  background: #0d2015;
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 #e5393922; }
+  50% { box-shadow: 0 0 10px 2px #e5393955; }
+}
+
+.hint {
+  margin-top: 7px;
+  color: #888;
+  font-size: 12px;
+}
 
 button {
   width: 100%;
   min-height: 52px;
-  margin-top: 12px;
-  padding: 14px;
-  border: 2px solid white;
-  border-radius: 7px;
-  background: white;
-  color: black;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 950;
-  letter-spacing: 1px;
+  margin-top: 16px;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: .5px;
   cursor: pointer;
-  transition: background .15s, transform .15s;
+  touch-action: manipulation;
 }
 
-button:hover { background: #d8d8d8; }
-button:active { transform: scale(.985); }
+.lock-button {
+  background: #e8e8e8;
+  color: #111;
+}
+
+.lock-button:active {
+  transform: scale(.98);
+}
 
 .secondary {
-  margin-top: 8px;
-  background: transparent;
+  background: #292929;
   color: white;
+  border: 1px solid #444;
 }
 
-.secondary:hover {
-  background: #181818;
-  color: white;
-}
-
-#status {
-  min-height: 18px;
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 12px;
+.status {
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #222;
+  color: #ff7777;
   text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: .5px;
+}
+
+.status.success {
+  color: #43e58b;
+  background: #102419;
+}
+
+.results {
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  background: #101010;
+}
+
+.results h2 {
+  margin: 0 0 14px;
+  font-size: 15px;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #292929;
+  font-size: 14px;
+}
+
+.result-row:last-child {
+  border-bottom: none;
+}
+
+.result-value {
+  font-weight: bold;
+  text-align: right;
   overflow-wrap: anywhere;
 }
 
-footer {
-  padding: 12px 4px;
-  color: #777;
+.footer {
+  margin-top: 20px;
+  color: #666;
   font-size: 11px;
-  line-height: 1.8;
   text-align: center;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation: none !important;
-    transition: none !important;
-  }
 }
 </style>
 </head>
 
 <body>
-<main>
-  <header>
-    <div class="topline">
-      <div class="eyebrow">OSC / SYSTEM 01</div>
-      <div class="mark" aria-hidden="true">O</div>
+<div class="container">
+
+  <div class="header">
+    <h1>OSC STRIKE CALCULATOR</h1>
+    <p>BEDROCK EDITION · X / Z COORDINATES</p>
+  </div>
+
+  <form id="calculator" novalidate>
+    <label class="label" for="cannon">
+      YOUR LOCATION (X, Z)
+    </label>
+    <input
+      id="cannon"
+      type="text"
+      inputmode="text"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      placeholder="Example: 250, 100"
+      aria-label="Your X and Z coordinates"
+    >
+    <div class="hint">Enter both coordinates, separated by a comma.</div>
+
+    <label class="label" for="target">
+      TARGET LOCATION (X, Z)
+    </label>
+    <input
+      id="target"
+      type="text"
+      inputmode="text"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      placeholder="Example: 1000, 400"
+      aria-label="Target X and Z coordinates"
+    >
+
+    <label class="label" for="stack">
+      BLOCKS PER STACK
+    </label>
+    <input
+      id="stack"
+      type="number"
+      inputmode="numeric"
+      min="1"
+      step="1"
+      value="64"
+      aria-label="Blocks per stack"
+    >
+
+    <button class="lock-button" type="submit">
+      🔒 LOCK IN &amp; CALCULATE
+    </button>
+  </form>
+
+  <div id="status" class="status" role="status" aria-live="polite">
+    AWAITING COORDINATES
+  </div>
+
+  <div class="results">
+    <h2>CALCULATION RESULTS</h2>
+
+    <div class="result-row">
+      <span>Horizontal distance</span>
+      <span class="result-value" id="distance">—</span>
     </div>
 
-    <h1>STRIKE<br>CALCULATOR</h1>
-    <div class="subtitle">
-      Bedrock Edition / Coordinate Distance System
-    </div>
-  </header>
-
-  <section class="panel">
-    <div class="section-title">01 / X &amp; Z COORDINATES</div>
-
-    <label for="cannon">YOUR LOCATION (X, Z)</label>
-    <input id="cannon" type="text"
-           placeholder="Example: 250, 100"
-           inputmode="decimal" autocomplete="off">
-
-    <label for="target">TARGET LOCATION (X, Z)</label>
-    <input id="target" type="text"
-           placeholder="Example: 1000, 400"
-           inputmode="decimal" autocomplete="off">
-
-    <div class="hint">
-      Enter X and Z separated by a comma. Example: 250, 100
-    </div>
-  </section>
-
-  <section class="panel">
-    <div class="section-title">02 / STACK CONFIGURATION</div>
-
-    <label for="stack">BLOCKS PER STACK</label>
-    <input id="stack" type="number" min="1" step="1"
-           value="64" inputmode="numeric">
-
-    <div class="hint">
-      Standard Minecraft stacks usually contain 64 blocks.
-    </div>
-  </section>
-
-  <section class="panel result-panel" aria-live="polite">
-    <div class="result-head">
-      <div class="small">03 / HORIZONTAL DISTANCE</div>
-      <div class="result">
-        <span id="distance">—</span>
-        <span class="result-unit">BLOCKS</span>
-      </div>
+    <div class="result-row">
+      <span>X distance</span>
+      <span class="result-value" id="dx">—</span>
     </div>
 
-    <div class="result-body">
-      <div class="line">
-        <span>X DISTANCE</span>
-        <strong id="dx">—</strong>
-      </div>
-
-      <div class="line">
-        <span>Z DISTANCE</span>
-        <strong id="dz">—</strong>
-      </div>
-
-      <div class="line">
-        <span>FULL STACKS</span>
-        <strong id="stacks">—</strong>
-      </div>
-
-      <div class="line">
-        <span>REMAINING BLOCKS</span>
-        <strong id="extra">—</strong>
-      </div>
-
-      <button id="copy" type="button">COPY CALCULATION</button>
-
-      <button id="reset" class="secondary" type="button">
-        RESET COORDINATES TO ZERO
-      </button>
-
-      <div id="status" role="status" aria-live="polite"></div>
+    <div class="result-row">
+      <span>Z distance</span>
+      <span class="result-value" id="dz">—</span>
     </div>
-  </section>
 
-  <footer>
-    OSC / BEDROCK EDITION<br>
-    DISTANCE TOOL — VERIFY ACTUAL CANNON RANGE IN-GAME
-  </footer>
-</main>
+    <div class="result-row">
+      <span>Full stacks</span>
+      <span class="result-value" id="stacks">—</span>
+    </div>
+
+    <div class="result-row">
+      <span>Remaining blocks</span>
+      <span class="result-value" id="remaining">—</span>
+    </div>
+
+    <div class="result-row">
+      <span>Total blocks</span>
+      <span class="result-value" id="total">—</span>
+    </div>
+  </div>
+
+  <button id="copy" class="secondary" type="button">
+    COPY CALCULATION
+  </button>
+
+  <button id="reset" class="secondary" type="button">
+    RESET CALCULATOR
+  </button>
+
+  <div class="footer">OSC SYSTEM · READY WHEN YOU ARE</div>
+</div>
 
 <script>
+const form = document.getElementById("calculator");
 const cannon = document.getElementById("cannon");
 const target = document.getElementById("target");
 const stack = document.getElementById("stack");
-const status = document.getElementById("status");
+const statusBox = document.getElementById("status");
 
-const fields = [cannon, target, stack];
-const previousValid = new Set();
-const flashTimers = new Map();
+const coordinateFields = [cannon, target];
+const allFields = [cannon, target, stack];
 
-let calculation = "";
+let lockedResult = null;
 
-function setOutput(id, value) {
-  document.getElementById(id).textContent = value;
-}
-
-function parseCoordinates(input) {
-  const parts = input.value.trim().split(/[,\s]+/);
+function parseCoordinates(value) {
+  const parts = value.trim().split(/\s*,\s*|\s+/);
 
   if (
     parts.length !== 2 ||
     parts.some(part => part === "")
-  ) return null;
+  ) {
+    return null;
+  }
 
   const x = Number(parts[0]);
   const z = Number(parts[1]);
@@ -375,139 +317,179 @@ function parseCoordinates(input) {
   return { x, z };
 }
 
-function updateField(input) {
-  const value = input.value.trim();
-  const wasValid = previousValid.has(input.id);
+function setStatus(message, success = false) {
+  statusBox.textContent = message;
+  statusBox.classList.toggle("success", success);
+}
 
-  input.classList.remove("empty", "valid", "invalid");
+function clearResults() {
+  ["distance", "dx", "dz", "stacks", "remaining", "total"]
+    .forEach(id => {
+      document.getElementById(id).textContent = "—";
+    });
+}
 
-  if (value === "") {
-    input.classList.remove("flash");
-    clearTimeout(flashTimers.get(input.id));
-    previousValid.delete(input.id);
-    input.classList.add("empty");
+function validateCoordinates(field) {
+  if (!field.value.trim()) {
+    field.className = "empty";
     return false;
   }
 
-  let valid;
-
-  if (input === stack) {
-    const n = Number(value);
-    valid = Number.isFinite(n) &&
-      Number.isInteger(n) && n > 0;
-  } else {
-    valid = parseCoordinates(input) !== null;
-  }
-
-  if (!valid) {
-    input.classList.remove("flash");
-    clearTimeout(flashTimers.get(input.id));
-    previousValid.delete(input.id);
-    input.classList.add("invalid");
+  if (!parseCoordinates(field.value)) {
+    field.className = "invalid";
     return false;
   }
 
-  previousValid.add(input.id);
-
-  if (!wasValid) {
-    input.classList.remove("flash");
-    void input.offsetWidth;
-    input.classList.add("flash");
-
-    clearTimeout(flashTimers.get(input.id));
-    flashTimers.set(input.id, setTimeout(() => {
-      input.classList.remove("flash");
-      if (input.value.trim() !== "") {
-        input.classList.add("valid");
-      }
-    }, 650));
-  } else if (!input.classList.contains("flash")) {
-    input.classList.add("valid");
-  }
-
+  field.className = "";
   return true;
 }
 
-function calculate() {
-  const validity = fields.map(updateField);
-  const allFilled = fields.every(
-    input => input.value.trim() !== ""
-  );
+function calculate(event) {
+  if (event) event.preventDefault();
 
-  if (!allFilled || !validity.every(Boolean)) {
-    ["distance", "dx", "dz", "stacks", "extra"]
-      .forEach(id => setOutput(id, "—"));
+  // Close the mobile keyboard when possible.
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 
-    calculation = "";
-    status.textContent = !allFilled
-      ? "AWAITING COORDINATES"
-      : "CHECK INPUT FORMAT — USE X, Z";
+  const cannonValid = validateCoordinates(cannon);
+  const targetValid = validateCoordinates(target);
+
+  const stackValue = Number(stack.value);
+  const stackValid =
+    stack.value.trim() !== "" &&
+    Number.isSafeInteger(stackValue) &&
+    stackValue > 0;
+
+  stack.className = stackValid ? "" :
+    (stack.value.trim() ? "invalid" : "empty");
+
+  if (!cannonValid || !targetValid || !stackValid) {
+    lockedResult = null;
+    clearResults();
+    setStatus("CHECK YOUR INPUTS — INVALID OR MISSING VALUE");
     return;
   }
 
-  const from = parseCoordinates(cannon);
-  const to = parseCoordinates(target);
-  const size = Number(stack.value);
+  const start = parseCoordinates(cannon.value);
+  const end = parseCoordinates(target.value);
 
-  const dx = Math.abs(to.x - from.x);
-  const dz = Math.abs(to.z - from.z);
+  const dx = Math.abs(end.x - start.x);
+  const dz = Math.abs(end.z - start.z);
   const distance = Math.hypot(dx, dz);
 
-  const full = Math.floor(distance / size);
-  const extra = Number((distance - full * size).toFixed(3));
+  if (!Number.isFinite(distance)) {
+    lockedResult = null;
+    clearResults();
+    setStatus("COORDINATES TOO LARGE — CHECK YOUR INPUTS");
+    return;
+  }
 
-  setOutput("dx", dx);
-  setOutput("dz", dz);
-  setOutput("distance", Number(distance.toFixed(3)));
-  setOutput("stacks", full);
-  setOutput("extra", extra);
+  const total = Math.ceil(distance);
+  const fullStacks = Math.floor(total / stackValue);
+  const remaining = total % stackValue;
 
-  calculation =
-    `Your location: X ${from.x}, Z ${from.z}\n` +
-    `Target location: X ${to.x}, Z ${to.z}\n` +
-    `X distance: ${dx} blocks\n` +
-    `Z distance: ${dz} blocks\n` +
-    `Horizontal distance: ${distance.toFixed(3)} blocks\n` +
-    `${full} full stacks + ${extra} blocks`;
+  lockedResult = {
+    dx, dz, distance, total, fullStacks, remaining, stackValue
+  };
 
-  status.textContent = "COORDINATES VERIFIED";
+  cannon.className = "valid";
+  target.className = "valid";
+  stack.className = "valid";
+
+  document.getElementById("distance").textContent =
+    distance.toFixed(2) + " blocks";
+
+  document.getElementById("dx").textContent = dx + " blocks";
+  document.getElementById("dz").textContent = dz + " blocks";
+
+  document.getElementById("stacks").textContent =
+    fullStacks + " stacks";
+
+  document.getElementById("remaining").textContent =
+    remaining + " blocks";
+
+  document.getElementById("total").textContent =
+    total + " blocks";
+
+  setStatus("✓ COORDINATES LOCKED — CALCULATION COMPLETE", true);
 }
 
-fields.forEach(input => {
-  input.addEventListener("input", calculate);
+form.addEventListener("submit", calculate);
+
+// Editing any value unlocks the previous result until recalculated.
+allFields.forEach(field => {
+  field.addEventListener("input", () => {
+    lockedResult = null;
+    clearResults();
+    setStatus("INPUT CHANGED — LOCK IN TO RECALCULATE");
+
+    if (field === cannon || field === target) {
+      validateCoordinates(field);
+    } else {
+      field.className =
+        field.value.trim() ? "" : "empty";
+    }
+  });
 });
 
 document.getElementById("copy").addEventListener("click", async () => {
-  if (!calculation) {
-    status.textContent = "Enter valid coordinates first.";
+  if (!lockedResult) {
+    setStatus("LOCK IN YOUR COORDINATES BEFORE COPYING");
     return;
   }
 
+  const r = lockedResult;
+  const text =
+    `OSC STRIKE CALCULATION\n` +
+    `Your location: ${cannon.value}\n` +
+    `Target location: ${target.value}\n` +
+    `X distance: ${r.dx} blocks\n` +
+    `Z distance: ${r.dz} blocks\n` +
+    `Horizontal distance: ${r.distance.toFixed(2)} blocks\n` +
+    `Full stacks: ${r.fullStacks}\n` +
+    `Remaining blocks: ${r.remaining}\n` +
+    `Total blocks: ${r.total}\n` +
+    `Stack size: ${r.stackValue}`;
+
   try {
-    if (!navigator.clipboard?.writeText) throw new Error();
-    await navigator.clipboard.writeText(calculation);
-    status.textContent = "CALCULATION COPIED";
+    await navigator.clipboard.writeText(text);
+    setStatus("✓ CALCULATION COPIED", true);
   } catch {
-    status.textContent = calculation;
+    // Fallback for browsers where clipboard access is restricted.
+    const temporary = document.createElement("textarea");
+    temporary.value = text;
+    document.body.appendChild(temporary);
+    temporary.select();
+
+    const copied = document.execCommand("copy");
+    temporary.remove();
+
+    setStatus(
+      copied ? "✓ CALCULATION COPIED" :
+        "COPY FAILED — PLEASE COPY MANUALLY",
+      copied
+    );
   }
 });
 
 document.getElementById("reset").addEventListener("click", () => {
-  [cannon, target].forEach(input => {
-    input.value = "0, 0";
-    previousValid.delete(input.id);
-    clearTimeout(flashTimers.get(input.id));
-  });
-
+  cannon.value = "0, 0";
+  target.value = "0, 0";
   stack.value = "64";
-  previousValid.delete(stack.id);
-  clearTimeout(flashTimers.get(stack.id));
 
-  calculate();
-  status.textContent = "SYSTEM RESET — COORDINATES ZEROED";
+  lockedResult = null;
+  clearResults();
+
+  allFields.forEach(field => field.className = "");
+
+  setStatus("RESET COMPLETE — TAP LOCK IN TO CALCULATE");
 });
 
-calculate();
+// Initial appearance: coordinates are empty and need to be entered.
+coordinateFields.forEach(field => {
+  field.className = "empty";
+});
 </script>
 </body>
 </html>
