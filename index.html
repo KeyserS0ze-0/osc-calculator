@@ -1,414 +1,571 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101010">
-<title>OSC Toolkit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSC Calculator</title>
+
 <style>
-*{box-sizing:border-box}
-:root{--bg:#101010;--panel:#191919;--field:#101010;--border:#383838;--text:#eee;--muted:#929292;--green:#a7e8b7;--green-bg:#26372d;--red:#ff7777}
-body{margin:0;padding:16px;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-button,input{font:inherit}
-button{cursor:pointer;touch-action:manipulation}
-.app{width:100%;max-width:410px;margin:0 auto}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-h1{font-size:23px;letter-spacing:1px;margin:0 0 5px}
-.subtitle{color:var(--muted);font-size:10px;letter-spacing:1px}
-.info-button{flex-shrink:0;padding:10px 13px;border:1px solid #659374;border-radius:9px;background:var(--green-bg);color:var(--green);font-weight:bold;font-size:12px}
-.switcher{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:17px}
-.switch-button{padding:12px 5px;border:1px solid var(--border);border-radius:9px;background:#1b1b1b;color:#bcbcbc;font-size:12px;font-weight:bold}
-.switch-button.active{color:var(--green);background:var(--green-bg);border-color:#62856b}
-.panel{padding:16px;background:var(--panel);border:1px solid #303030;border-radius:13px}
-h2{font-size:16px;margin:0 0 15px;letter-spacing:.5px}
-.section{margin-bottom:15px}
-.label{display:block;color:#bcbcbc;font-size:11px;font-weight:bold;letter-spacing:.7px;margin-bottom:8px}
-input{width:100%;min-width:0;padding:12px;color:var(--text);background:var(--field);border:1px solid var(--border);border-radius:8px;outline:none;font-size:15px}
-input:focus{border-color:#888}
-input.valid{border-color:#55b779}
-input.invalid{border-color:#ed6565}
-.hint{margin-top:5px;color:#777;font-size:10px;line-height:1.5}
-.axis-box{padding:12px;margin-bottom:16px;background:#111;border:1px solid #343434;border-radius:10px}
-.axis-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.axis-button{padding:10px;color:#bcbcbc;background:#202020;border:1px solid #393939;border-radius:7px}
-.axis-button.active{background:var(--green-bg);color:var(--green);border-color:#62856b}
-.primary,.secondary{width:100%;padding:12px;border-radius:8px;font-weight:bold;font-size:12px}
-.primary{background:#d2d2d2;color:#111;border:0}
-.secondary{margin-top:9px;background:#202020;color:#d0d0d0;border:1px solid #404040}
-button:active{transform:scale(.985)}
-.swap-button{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;margin:-2px 0 15px;color:var(--green);background:#202720;border:1px solid #394b3e;border-radius:8px;font-size:11px;font-weight:bold}
-.error{display:none;color:var(--red);font-size:12px;line-height:1.5;margin-top:10px}
-.footer{text-align:center;margin-top:14px;color:#686868;font-size:10px;line-height:1.5}
-.hidden{display:none!important}
-.overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.48);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.overlay.show{display:flex;animation:fade .18s ease-out}
-.dialog{width:100%;max-width:340px;max-height:85vh;max-height:85dvh;overflow-y:auto;padding:21px;background:#191919;border:1px solid #454545;border-radius:15px;box-shadow:0 18px 65px #0009;animation:pop .2s ease-out}
-.dialog h2{margin-bottom:8px;text-align:center}
-.dialog-subtitle{color:var(--muted);text-align:center;font-size:11px;margin-bottom:18px}
-.check-mark{display:flex;align-items:center;justify-content:center;width:34px;height:34px;margin:0 auto 12px;border:1px solid #4a7958;border-radius:50%;background:#223128;color:var(--green);font-size:18px}
-.result-card{padding:16px 10px;margin-bottom:12px;text-align:center;background:#111411;border:1px solid #35473a;border-radius:11px}
-.result-label{color:#8ca393;font-size:10px;letter-spacing:1px;margin-bottom:9px}
-.result-main{color:var(--green);font-size:24px;font-weight:bold;line-height:1.35;overflow-wrap:anywhere}
-.detail{display:flex;justify-content:space-between;gap:12px;padding:10px 0;color:#aaa;border-bottom:1px solid #303030;font-size:12px}
-.detail strong{color:#eee;text-align:right;overflow-wrap:anywhere}
-.dialog .primary{margin-top:15px}
-.dialog .secondary{margin-top:9px}
-.guide-item{padding:11px 0;border-bottom:1px solid #333}
-.guide-item strong{display:block;color:#d8d8d8;font-size:13px;margin-bottom:5px}
-.guide-item p{color:#aaa;font-size:12px;line-height:1.55;margin:0}
-.dialog-note{color:#888;font-size:10px;line-height:1.5;margin-top:13px}
-.entry{padding:11px;margin-bottom:8px;background:#111;border:1px solid #353535;border-radius:8px}
-.entry-title{font-size:12px;font-weight:bold;overflow-wrap:anywhere}
-.entry-info{color:#999;font-size:11px;line-height:1.6;margin:6px 0;white-space:pre-line}
-.entry-actions{display:flex;gap:7px}
-.entry-actions button{flex:1;padding:8px 5px;color:#ddd;background:#222;border:1px solid #444;border-radius:6px;font-size:10px}
-.entry-actions button:first-child{color:var(--green);border-color:#45634d}
-.empty-state{padding:18px 5px;color:#888;text-align:center;font-size:12px;line-height:1.6}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes pop{from{opacity:0;transform:scale(.95) translateY(5px)}to{opacity:1;transform:scale(1) translateY(0)}}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 18px;
+  background: #101010;
+  color: #eeeeee;
+  font-family: Arial, sans-serif;
+}
+
+.calculator {
+  max-width: 390px;
+  margin: auto;
+  padding: 18px;
+  background: #171717;
+  border: 1px solid #303030;
+  border-radius: 15px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 23px;
+  margin: 2px 0 6px;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #858585;
+  font-size: 10px;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+}
+
+.axis-box {
+  padding: 12px;
+  background: #111111;
+  border: 1px solid #343434;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.section-title {
+  display: block;
+  color: #bcbcbc;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: .8px;
+  margin-bottom: 9px;
+}
+
+.axis-options {
+  display: flex;
+  gap: 8px;
+}
+
+.axis-options button {
+  flex: 1;
+  background: #202020;
+  color: #bdbdbd;
+  border: 1px solid #393939;
+  border-radius: 7px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.axis-options button.active {
+  background: #26372d;
+  color: #a1efba;
+  border-color: #57936b;
+}
+
+.field {
+  margin-bottom: 13px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  background: #101010;
+  color: #eeeeee;
+  border: 1px solid #393939;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+}
+
+input:focus {
+  border-color: #777777;
+}
+
+input.valid {
+  border-color: #55b779;
+}
+
+input.invalid {
+  border-color: #ed6565;
+}
+
+.hint {
+  color: #777777;
+  font-size: 10px;
+  margin-top: 5px;
+}
+
+.primary {
+  width: 100%;
+  padding: 12px;
+  background: #d2d2d2;
+  color: #111111;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.primary:active,
+.secondary:active {
+  transform: scale(.98);
+}
+
+.secondary {
+  width: 100%;
+  padding: 10px;
+  margin-top: 9px;
+  background: #1c1c1c;
+  color: #c9c9c9;
+  border: 1px solid #393939;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.error {
+  display: none;
+  color: #ff7777;
+  font-size: 12px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.footer {
+  text-align: center;
+  color: #666666;
+  font-size: 10px;
+  margin-top: 14px;
+}
+
+/* Popup overlay and subtle background blur */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, .48);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.modal-overlay.show {
+  display: flex;
+  animation: fadeIn .18s ease-out;
+}
+
+.modal {
+  width: 100%;
+  max-width: 330px;
+  padding: 22px;
+  background: #191919;
+  border: 1px solid #454545;
+  border-radius: 16px;
+  box-shadow: 0 18px 65px rgba(0,0,0,.55);
+  text-align: center;
+  animation: popIn .2s ease-out;
+}
+
+.modal-mark {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #4a7958;
+  border-radius: 50%;
+  color: #9ce4b0;
+  background: #223128;
+  font-size: 18px;
+}
+
+.modal h2 {
+  margin: 0 0 7px;
+  font-size: 16px;
+  letter-spacing: .7px;
+}
+
+.modal-subtitle {
+  color: #909090;
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+
+.result-card {
+  background: #111411;
+  border: 1px solid #35473a;
+  border-radius: 11px;
+  padding: 16px 8px;
+  margin-bottom: 14px;
+}
+
+.result-label {
+  color: #8ca393;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-bottom: 9px;
+}
+
+.result-main {
+  color: #a7e8b7;
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.result-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 1px;
+  border-bottom: 1px solid #303030;
+  color: #a5a5a5;
+  font-size: 12px;
+  text-align: left;
+}
+
+.result-detail strong {
+  color: #eeeeee;
+  text-align: right;
+}
+
+.modal-buttons {
+  margin-top: 15px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.94) translateY(5px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 </style>
 </head>
+
 <body>
-<main class="app">
-<header>
-<div><h1>OSC TOOLKIT</h1><div class="subtitle">MINECRAFT BEDROCK EDITION</div></div>
-<button class="info-button" id="infoButton" type="button">ⓘ INFO</button>
-</header>
 
-<nav class="switcher" aria-label="Choose calculator">
-<button class="switch-button active" data-page="osc" type="button" aria-pressed="true">OSC CALCULATOR</button>
-<button class="switch-button" data-page="blocks" type="button" aria-pressed="false">BLOCK CALCULATOR</button>
-</nav>
+<main class="calculator" id="calculator">
+  <h1>OSC CALCULATOR</h1>
+  <div class="subtitle">BEDROCK EDITION · STRAIGHT-SHOT</div>
 
-<section class="panel" id="oscPage">
-<h2>OSC CALCULATOR</h2>
-<form id="oscForm" novalidate>
-<div class="axis-box">
-<label class="label">COORDINATE AXIS</label>
-<div class="axis-options">
-<button class="axis-button active" data-axis="X" type="button" aria-pressed="true">X AXIS</button>
-<button class="axis-button" data-axis="Z" type="button" aria-pressed="false">Z AXIS</button>
-</div>
-</div>
-<div class="section">
-<label class="label" for="cannon">CANNON LOCATION · <span class="axis-label">X</span></label>
-<input id="cannon" type="number" step="any" inputmode="decimal" placeholder="e.g. -120" required>
-<div class="hint">Negative coordinates are supported.</div>
-</div>
-<div class="section">
-<label class="label" for="target">TARGET LOCATION · <span class="axis-label">X</span></label>
-<input id="target" type="number" step="any" inputmode="decimal" placeholder="e.g. 80" required>
-</div>
-<button class="swap-button" id="swapButton" type="button">↕ SWAP COORDINATES</button>
-<div class="section">
-<label class="label" for="stackSize">BLOCKS PER STACK</label>
-<input id="stackSize" type="number" min="1" step="1" inputmode="numeric" value="64" required>
-</div>
-<button class="primary" type="submit">LOCK IN &amp; CALCULATE</button>
-<div class="error" id="oscError" role="alert"></div>
-</form>
-<button class="secondary" id="resetOsc" type="button">RESET CALCULATOR</button>
-</section>
+  <section class="axis-box">
+    <label class="section-title">COORDINATE AXIS</label>
+    <div class="axis-options">
+      <button type="button" class="active" data-axis="X"
+        aria-pressed="true">X AXIS</button>
+      <button type="button" data-axis="Z"
+        aria-pressed="false">Z AXIS</button>
+    </div>
+  </section>
 
-<section class="panel hidden" id="blocksPage">
-<h2>BLOCK CALCULATOR</h2>
-<form id="blocksForm" novalidate>
-<div class="section">
-<label class="label" for="numStacks">NUMBER OF STACKS</label>
-<input id="numStacks" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 5" value="1" required>
-</div>
-<div class="section">
-<label class="label" for="extraBlocks">EXTRA BLOCKS</label>
-<input id="extraBlocks" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g. 12" value="0" required>
-</div>
-<div class="section">
-<label class="label" for="blockStackSize">BLOCKS PER STACK</label>
-<input id="blockStackSize" type="number" min="1" step="1" inputmode="numeric" value="64" required>
-</div>
-<button class="primary" type="submit">CALCULATE BLOCKS</button>
-<div class="error" id="blocksError" role="alert"></div>
-</form>
-<button class="secondary" id="resetBlocks" type="button">RESET CALCULATOR</button>
-</section>
+  <form id="calcForm" novalidate>
+    <div class="field">
+      <label class="section-title" for="cannon">
+        CANNON LOCATION · <span class="axis-label">X</span>
+      </label>
+      <input id="cannon" type="number" step="any"
+        inputmode="decimal" placeholder="e.g. -120" required>
+      <div class="hint">Negative coordinates supported.</div>
+    </div>
 
-<div class="footer">COMPACT · NEGATIVE COORDINATES SUPPORTED<br>Calculations use one axis at a time.</div>
+    <div class="field">
+      <label class="section-title" for="target">
+        TARGET LOCATION · <span class="axis-label">X</span>
+      </label>
+      <input id="target" type="number" step="any"
+        inputmode="decimal" placeholder="e.g. 80" required>
+      <div class="hint">Enter the target coordinate on the same axis.</div>
+    </div>
+
+    <div class="field">
+      <label class="section-title" for="stack">
+        BLOCKS PER STACK
+      </label>
+      <input id="stack" type="number" min="1" step="1"
+        inputmode="numeric" value="64" required>
+    </div>
+
+    <button class="primary" type="submit">
+      LOCK IN &amp; CALCULATE
+    </button>
+
+    <div class="error" id="error" role="alert"></div>
+  </form>
+
+  <button class="secondary" id="reset" type="button">
+    RESET CALCULATOR
+  </button>
+
+  <div class="footer">
+    ONE AXIS ONLY · NO DIAGONAL CALCULATIONS
+  </div>
 </main>
 
-<div class="overlay" id="resultOverlay" role="dialog" aria-modal="true" aria-labelledby="resultTitle" aria-hidden="true">
-<section class="dialog">
-<div class="check-mark">✓</div>
-<h2 id="resultTitle">CALCULATION LOCKED IN</h2>
-<div class="dialog-subtitle" id="resultSubtitle">DISTANCE ALONG X AXIS</div>
-<div class="result-card">
-<div class="result-label" id="resultLabel">REQUIRED BLOCK SUPPLY</div>
-<div class="result-main" id="resultMain">3 STACKS + 12 BLOCKS</div>
-</div>
-<div class="detail"><span id="detailOneLabel">Total distance</span><strong id="detailOne">204 blocks</strong></div>
-<div class="detail"><span id="detailTwoLabel">Full stacks</span><strong id="detailTwo">3</strong></div>
-<div class="detail"><span id="detailThreeLabel">Extra blocks</span><strong id="detailThree">12</strong></div>
-<button class="primary" id="copyResult" type="button">COPY CALCULATION</button>
-<button class="secondary" id="closeResult" type="button">GOT IT</button>
-</section>
-</div>
+<!-- Results popup -->
+<div class="modal-overlay" id="overlay"
+  role="dialog" aria-modal="true"
+  aria-labelledby="modalTitle" aria-hidden="true">
 
-<div class="overlay" id="infoOverlay" role="dialog" aria-modal="true" aria-labelledby="infoTitle" aria-hidden="true">
-<section class="dialog">
-<h2 id="infoTitle">TOOLKIT GUIDE</h2>
-<div class="dialog-subtitle">A QUICK GUIDE TO YOUR CALCULATORS</div>
-<div class="guide-item"><strong>OSC Calculator</strong><p>Choose X or Z, enter the cannon and target coordinates on that axis, then calculate the distance and required blocks. Negative coordinates work too.</p></div>
-<div class="guide-item"><strong>Swap Coordinates</strong><p>Switches the cannon and target values. It changes the calculator inputs, not your actual Minecraft cannon.</p></div>
-<div class="guide-item"><strong>Block Calculator</strong><p>Converts your number of stacks and extra blocks into a total block count. It does not assume every block equals one unit of actual OSC travel.</p></div>
-<div class="guide-item"><strong>Calculation Results</strong><p>Your result appears in a popup. Copy it for later, or close the popup to return to your inputs.</p></div>
-<div class="dialog-note">Coordinates must be entered manually. The website cannot automatically read your Minecraft world position.</div>
-<button class="primary" id="closeInfo" type="button">GOT IT</button>
-</section>
-</div>
+  <section class="modal">
+    <div class="modal-mark">✓</div>
+    <h2 id="modalTitle">CALCULATION LOCKED IN</h2>
+    <div class="modal-subtitle" id="modalAxis">
+      DISTANCE ALONG X AXIS
+    </div>
 
-<div class="overlay" id="extrasOverlay" role="dialog" aria-modal="true" aria-labelledby="extrasTitle" aria-hidden="true">
-<section class="dialog">
-<h2 id="extrasTitle">TOOLKIT EXTRAS</h2>
-<div class="dialog-subtitle">YOUR SAVED TOOL DATA</div>
-<div class="section"><label class="label" for="cannonName">CANNON NAME</label><input id="cannonName" placeholder="e.g. Main Base Cannon" maxlength="45"></div>
-<div class="section"><label class="label" for="savedX">CANNON X COORDINATE</label><input id="savedX" type="number" step="any" placeholder="X"></div>
-<div class="section"><label class="label" for="savedZ">CANNON Z COORDINATE</label><input id="savedZ" type="number" step="any" placeholder="Z"></div>
-<button class="primary" id="saveCannon" type="button">SAVE LOCATION</button>
-<div class="error" id="saveError" role="alert"></div>
-<div style="height:15px"></div><div class="label">SAVED LOCATIONS</div><div id="savedList"></div>
-<div style="height:10px"></div><div class="label">RECENT CALCULATIONS</div><div id="historyList"></div>
-<button class="secondary" id="clearHistory" type="button">CLEAR HISTORY</button>
-<button class="secondary" id="closeExtras" type="button">CLOSE</button>
-</section>
-</div>
+    <div class="result-card">
+      <div class="result-label">YOUR REQUIRED AMOUNT</div>
+      <div class="result-main" id="mainResult">3 STACKS + 12 BLOCKS</div>
+    </div>
 
-<button id="extrasButton" type="button" style="display:block;max-width:410px;width:100%;margin:12px auto 0;padding:8px;background:transparent;color:#666;border:0;font-size:10px;letter-spacing:1px">···</button>
-<div id="appError" role="alert" style="display:none;max-width:410px;margin:12px auto;color:#ff7777;font-size:12px;line-height:1.5"></div>
+    <div class="result-detail">
+      <span>Total distance</span>
+      <strong id="distanceResult">204 blocks</strong>
+    </div>
+    <div class="result-detail">
+      <span>Full stacks</span>
+      <strong id="fullStacks">3</strong>
+    </div>
+    <div class="result-detail">
+      <span>Extra blocks</span>
+      <strong id="extraBlocks">12</strong>
+    </div>
+
+    <div class="modal-buttons">
+      <button class="primary" id="copy" type="button">
+        COPY CALCULATION
+      </button>
+      <button class="secondary" id="close" type="button">
+        GOT IT
+      </button>
+    </div>
+  </section>
+</div>
 
 <script>
-(function () {
-"use strict";
+(() => {
+  const form = document.getElementById("calcForm");
+  const cannonInput = document.getElementById("cannon");
+  const targetInput = document.getElementById("target");
+  const stackInput = document.getElementById("stack");
+  const errorBox = document.getElementById("error");
+  const overlay = document.getElementById("overlay");
+  const calculator = document.getElementById("calculator");
+  const axisButtons = document.querySelectorAll("[data-axis]");
+  const axisLabels = document.querySelectorAll(".axis-label");
 
-function byId(id) { return document.getElementById(id); }
-var axis = "X";
-var lastCalculation = "";
-var history = [];
-var savedCannons = [];
-var HISTORY_KEY = "oscToolkitHistory_v1";
-var CANNONS_KEY = "oscToolkitCannons_v1";
+  let axis = "X";
+  let lastCalculation = "";
 
-function reportFatalError(error) {
-  var box = byId("appError");
-  if (box) {
-    box.style.display = "block";
-    box.textContent = "Toolkit script error: " + (error && error.message ? error.message : String(error)) + ". Refresh the page and check that the complete code was published.";
+  function setError(message) {
+    errorBox.textContent = message;
+    errorBox.style.display = message ? "block" : "none";
   }
-}
-window.addEventListener("error", function (event) {
-  if (event && event.message) reportFatalError(event.message);
-});
 
-function loadStored(key) {
-  try {
-    var value = JSON.parse(window.localStorage.getItem(key) || "[]");
-    return Array.isArray(value) ? value : [];
-  } catch (error) {
-    return [];
+  function closePopup() {
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
   }
-}
-function persist() {
-  try {
-    window.localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    window.localStorage.setItem(CANNONS_KEY, JSON.stringify(savedCannons));
-  } catch (error) {
-    /* The toolkit still works if storage is unavailable. */
-  }
-}
-function showError(id, message) {
-  var el = byId(id);
-  el.textContent = message;
-  el.style.display = message ? "block" : "none";
-}
-function mark(input, valid) {
-  input.classList.toggle("valid", valid);
-  input.classList.toggle("invalid", !valid);
-}
-function clearMarks(inputs) {
-  inputs.forEach(function (input) {
-    input.classList.remove("valid", "invalid");
+
+  axisButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      axis = button.dataset.axis;
+
+      axisButtons.forEach(item => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
+
+      axisLabels.forEach(label => {
+        label.textContent = axis;
+      });
+
+      closePopup();
+      setError("");
+    });
   });
-}
-function showOverlay(id) {
-  byId(id).classList.add("show");
-  byId(id).setAttribute("aria-hidden", "false");
-}
-function hideOverlay(id) {
-  byId(id).classList.remove("show");
-  byId(id).setAttribute("aria-hidden", "true");
-}
-function formatNumber(n) {
-  return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(6)));
-}
-function stackDescription(full, extra) {
-  var result = full + (full === 1 ? " STACK" : " STACKS");
-  if (extra > 0) result += " + " + formatNumber(extra) + " BLOCKS";
-  return result;
-}
-function switchPage(page) {
-  byId("oscPage").classList.toggle("hidden", page !== "osc");
-  byId("blocksPage").classList.toggle("hidden", page !== "blocks");
-  document.querySelectorAll("[data-page]").forEach(function (button) {
-    var active = button.getAttribute("data-page") === page;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", String(active));
+
+  // Validate coordinates and show field status after calculation.
+  function markField(input, valid) {
+    input.classList.toggle("valid", valid);
+    input.classList.toggle("invalid", !valid);
+  }
+
+  [cannonInput, targetInput, stackInput].forEach(input => {
+    input.addEventListener("input", () => {
+      input.classList.remove("valid", "invalid");
+      setError("");
+    });
   });
-}
 
-var oscInputs = [byId("cannon"), byId("target"), byId("stackSize")];
-var blockInputs = [byId("numStacks"), byId("extraBlocks"), byId("blockStackSize")];
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    setError("");
 
-function recordCalculation(data) {
-  history.unshift({
-    id: Date.now() + Math.random(),
-    title: data.title,
-    summary: data.summary,
-    copyText: data.copyText,
-    kind: data.kind,
-    axis: data.axis || null,
-    cannon: data.cannon !== undefined ? data.cannon : null,
-    target: data.target !== undefined ? data.target : null,
-    stackSize: data.stackSize,
-    stacks: data.stacks !== undefined ? data.stacks : null,
-    extras: data.extras !== undefined ? data.extras : null
+    const cannonText = cannonInput.value.trim();
+    const targetText = targetInput.value.trim();
+    const stackText = stackInput.value.trim();
+
+    const cannonValid =
+      cannonText !== "" && Number.isFinite(Number(cannonText));
+    const targetValid =
+      targetText !== "" && Number.isFinite(Number(targetText));
+    const stackNumber = Number(stackText);
+    const stackValid =
+      stackText !== "" &&
+      Number.isFinite(stackNumber) &&
+      Number.isInteger(stackNumber) &&
+      stackNumber > 0;
+
+    markField(cannonInput, cannonValid);
+    markField(targetInput, targetValid);
+    markField(stackInput, stackValid);
+
+    if (!cannonValid || !targetValid || !stackValid) {
+      setError("Check your coordinates and stack size, then try again.");
+      return;
+    }
+
+    const cannon = Number(cannonText);
+    const target = Number(targetText);
+
+    // Absolute difference supports negative-to-positive coordinates.
+    const distance = Math.abs(target - cannon);
+
+    if (!Number.isFinite(distance)) {
+      setError("Those coordinates are too large to calculate.");
+      return;
+    }
+
+    const full = Math.floor(distance / stackNumber);
+    const extra = distance % stackNumber;
+
+    document.getElementById("modalAxis").textContent =
+      "DISTANCE ALONG " + axis + " AXIS";
+
+    document.getElementById("mainResult").textContent =
+      full + (full === 1 ? " STACK" : " STACKS") +
+      (extra > 0 ? " + " + extra + " BLOCKS" : "");
+
+    if (extra === 0) {
+      document.getElementById("mainResult").textContent =
+        full + (full === 1 ? " STACK" : " STACKS") +
+        (distance === 0 ? " · NO DISTANCE" : "");
+    }
+
+    document.getElementById("distanceResult").textContent =
+      distance + " blocks";
+    document.getElementById("fullStacks").textContent = full;
+    document.getElementById("extraBlocks").textContent = extra;
+
+    lastCalculation =
+      "OSC CALCULATOR\n" +
+      "Axis: " + axis + "\n" +
+      "Cannon coordinate: " + cannonText + "\n" +
+      "Target coordinate: " + targetText + "\n" +
+      "Distance: " + distance + " blocks\n" +
+      "Full stacks: " + full + "\n" +
+      "Extra blocks: " + extra + "\n" +
+      "Blocks per stack: " + stackNumber;
+
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+    document.getElementById("close").focus();
   });
-  history = history.slice(0, 8);
-  persist();
-  renderHistory();
-}
-function openResult(data) {
-  lastCalculation = data.copyText;
-  byId("resultTitle").textContent = data.title;
-  byId("resultSubtitle").textContent = data.subtitle;
-  byId("resultLabel").textContent = data.resultLabel;
-  byId("resultMain").textContent = data.main;
-  byId("detailOneLabel").textContent = data.labels[0];
-  byId("detailOne").textContent = data.values[0];
-  byId("detailTwoLabel").textContent = data.labels[1];
-  byId("detailTwo").textContent = data.values[1];
-  byId("detailThreeLabel").textContent = data.labels[2];
-  byId("detailThree").textContent = data.values[2];
-  showOverlay("resultOverlay");
-}
 
-function calculateOSC(event) {
-  event.preventDefault();
-  showError("oscError", "");
-  var cText = byId("cannon").value.trim();
-  var tText = byId("target").value.trim();
-  var sText = byId("stackSize").value.trim();
-  var cannon = Number(cText);
-  var target = Number(tText);
-  var stack = Number(sText);
-  var cv = cText !== "" && Number.isFinite(cannon);
-  var tv = tText !== "" && Number.isFinite(target);
-  var sv = sText !== "" && Number.isSafeInteger(stack) && stack > 0;
-  mark(byId("cannon"), cv);
-  mark(byId("target"), tv);
-  mark(byId("stackSize"), sv);
-  if (!cv || !tv || !sv) {
-    showError("oscError", "Enter valid coordinates and a positive whole-number stack size.");
-    return;
-  }
-  var distance = Math.abs(target - cannon);
-  if (!Number.isFinite(distance)) {
-    showError("oscError", "Those coordinates are too large to calculate.");
-    return;
-  }
-  var full = Math.floor(distance / stack);
-  var extra = Number((distance - full * stack).toFixed(8));
-  var main = distance === 0 ? "0 BLOCKS" : stackDescription(full, extra);
-  var copyText = "OSC CALCULATOR\nAxis: " + axis +
-    "\nCannon coordinate: " + cText +
-    "\nTarget coordinate: " + tText +
-    "\nDistance: " + formatNumber(distance) + " blocks" +
-    "\nRequired supply: " + main +
-    "\nFull stacks: " + full +
-    "\nExtra blocks: " + formatNumber(extra) +
-    "\nBlocks per stack: " + stack;
-  var data = {
-    kind: "osc",
-    title: "CALCULATION LOCKED IN",
-    subtitle: "DISTANCE ALONG " + axis + " AXIS",
-    resultLabel: "REQUIRED BLOCK SUPPLY",
-    main: main,
-    labels: ["Total distance", "Full stacks", "Extra blocks"],
-    values: [formatNumber(distance) + " blocks", String(full), formatNumber(extra)],
-    copyText: copyText,
-    summary: formatNumber(distance) + " blocks · " + main,
-    axis: axis,
-    cannon: cText,
-    target: tText,
-    stackSize: stack
-  };
-  recordCalculation(data);
-  openResult(data);
-}
+  document.getElementById("close").addEventListener("click", closePopup);
 
-function calculateBlocks(event) {
-  event.preventDefault();
-  showError("blocksError", "");
-  var stackText = byId("numStacks").value.trim();
-  var extraText = byId("extraBlocks").value.trim();
-  var sizeText = byId("blockStackSize").value.trim();
-  var stacks = Number(stackText);
-  var extras = Number(extraText);
-  var stackSize = Number(sizeText);
-  var sv = stackText !== "" && Number.isSafeInteger(stacks) && stacks >= 0;
-  var ev = extraText !== "" && Number.isSafeInteger(extras) && extras >= 0;
-  var zv = sizeText !== "" && Number.isSafeInteger(stackSize) && stackSize > 0;
-  mark(byId("numStacks"), sv);
-  mark(byId("extraBlocks"), ev);
-  mark(byId("blockStackSize"), zv);
-  if (!sv || !ev || !zv) {
-    showError("blocksError", "Use non-negative whole numbers and a positive stack size.");
-    return;
-  }
-  var total = stacks * stackSize + extras;
-  if (!Number.isSafeInteger(total)) {
-    showError("blocksError", "That block amount is too large.");
-    return;
-  }
-  var full = Math.floor(total / stackSize);
-  var remainder = total % stackSize;
-  var main = total + (total === 1 ? " BLOCK" : " BLOCKS");
-  var copyText = "BLOCK CALCULATOR\nStacks entered: " + stacks +
-    "\nExtra blocks entered: " + extras +
-    "\nBlocks per stack: " + stackSize +
-    "\nTotal supply: " + total + " blocks" +
-    "\nEquivalent stacks: " + full +
-    "\nRemainder: " + remainder + " blocks";
-  var data = {
-    kind: "blocks",
-    title: "SUPPLY CALCULATED",
-    subtitle: "YOUR TOTAL BLOCK SUPPLY",
-    resultLabel: "TOTAL BLOCKS AVAILABLE",
-    main: main,
-    labels: ["Stacks entered", "Extra blocks entered", "Stack size"],
-    values: [String(stacks), String(extras), String(stackSize)],
-    copyText: copyText,
-    summary: total + " blocks · " + full + " stacks + " + remainder,
-    stacks: stacks,
-    extras: extras,
-    stackSize: stackSize
-  };
-  recordCalculation(data);
-  openResult(data);
-}
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) closePopup();
+  });
 
-/* ---------- Copy helpers ---------- */
-function fallbackCopy(text) {
-  try {
-    var area = document.createElement("textarea");
-    area.value = text;
-    area.setAttribute("readonly", "");
-    area.style.position = "fixed";
-    area.style.opacity = "0";
-    area.style.l
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && overlay.classList.contains("show")) {
+      closePopup();
+    }
+  });
+
+  document.getElementById("copy").addEventListener("click", async () => {
+    if (!lastCalculation) return;
+
+    const button = document.getElementById("copy");
+
+    try {
+      await navigator.clipboard.writeText(lastCalculation);
+      button.textContent = "COPIED!";
+      setTimeout(() => {
+        button.textContent = "COPY CALCULATION";
+      }, 1400);
+    } catch (error) {
+      // Fallback for browsers that block clipboard access.
+      const temp = document.createElement("textarea");
+      temp.value = lastCalculation;
+      document.body.appendChild(temp);
+      temp.select();
+
+      const copied = document.execCommand("copy");
+      temp.remove();
+
+      button.textContent = copied ? "COPIED!" : "COPY FAILED";
+      setTimeout(() => {
+        button.textContent = "COPY CALCULATION";
+      }, 1400);
+    }
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    form.reset();
+    axis = "X";
+
+    axisButtons.forEach(button => {
+      const active = button.dataset.axis === "X";
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+
+    axisLabels.forEach(label => {
+      label.textContent = "X";
+    });
+
+    [cannonInput, targetInput, stackInput].forEach(input => {
+      input.classList.remove("valid", "invalid");
+    });
+
+    setError("");
+    closePopup();
+    lastCalculation = "";
+    cannonInput.focus();
+  });
+})();
+</script>
+
+</body>
+</html>
