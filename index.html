@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -404,12 +403,12 @@ function calculateBlocks(event) {
   openResult(data);
 }
 
-function copyText(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text).then(function () {
-      return true;
-    }).catch(function () {
-      return fallbackCopy(text);
-    });
-  }
-  return Promise.resolve(fa
+/* ---------- Copy helpers ---------- */
+function fallbackCopy(text) {
+  try {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    area.style.l
