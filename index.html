@@ -4,78 +4,428 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101710">
+<meta name="theme-color" content="#050505">
 <title>OSC | Strike Calculator</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;padding:24px 16px;background:#101710;color:#e8f0e6;font-family:system-ui,sans-serif}
-main{max-width:480px;margin:auto}
-header{text-align:center;margin:16px 0 28px}
-.eyebrow{color:#a8e58c;letter-spacing:3px;font-size:12px}
-h1{font-size:27px;margin:8px 0}
-.muted,.small{color:#a2afa0;font-size:14px}
-.panel{background:#1b261b;border:1px solid #354635;border-radius:14px;padding:18px;margin-bottom:16px}
-label{display:block;margin:12px 0 6px;font-size:14px}
-input{width:100%;padding:13px;border-radius:9px;border:1px solid #50634b;background:#0f170f;color:white;font-size:17px}
-.result{color:#a8e58c;font-size:30px;font-weight:750}
-.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #354635}
-.line:last-of-type{border-bottom:0}
-button{width:100%;padding:13px;margin-top:12px;border:0;border-radius:9px;font-size:15px;font-weight:700;background:#a8e58c;color:#142010}
-footer{text-align:center;font-size:12px;color:#81907d}
+:root {
+  color-scheme: dark;
+  --black: #050505;
+  --panel: #101010;
+  --raised: #181818;
+  --white: #ffffff;
+  --muted: #a3a3a3;
+  --border: #353535;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 28px 16px;
+  background: var(--black);
+  color: var(--white);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+main {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+}
+
+header {
+  margin: 12px 0 28px;
+}
+
+.topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+h1 {
+  margin: 14px 0 6px;
+  font-size: clamp(26px, 7vw, 34px);
+  font-weight: 950;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--white);
+  font-size: 27px;
+  font-weight: 950;
+}
+
+.panel {
+  padding: 20px;
+  margin-bottom: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.section-title {
+  margin-bottom: 18px;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+label {
+  display: block;
+  margin: 16px 0 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .6px;
+}
+
+input {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 13px 14px;
+  border: 1px solid #444;
+  border-radius: 7px;
+  outline: none;
+  background: #080808;
+  color: var(--white);
+  font: inherit;
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  transition: border-color .15s;
+}
+
+input:focus {
+  border-color: var(--white);
+}
+
+input:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--white);
+  outline-offset: 3px;
+}
+
+.hint {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.result-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.result-head {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.result {
+  margin-top: 8px;
+  font-size: clamp(34px, 10vw, 46px);
+  line-height: 1.1;
+  font-weight: 950;
+  letter-spacing: -1.5px;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-unit {
+  margin-left: 5px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.result-body {
+  padding: 6px 20px 18px;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.line span {
+  color: #c2c2c2;
+  font-size: 13px;
+}
+
+.line strong {
+  font-size: 23px;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+.line:last-child {
+  border-bottom: 0;
+}
+
+button {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 2px solid var(--white);
+  border-radius: 7px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background .15s, color .15s,
+              transform .15s;
+}
+
+button:hover {
+  background: #d6d6d6;
+}
+
+button:active {
+  transform: scale(.985);
+}
+
+.secondary {
+  margin-top: 8px;
+  background: transparent;
+  color: var(--white);
+}
+
+.secondary:hover {
+  background: var(--raised);
+  color: var(--white);
+}
+
+#status {
+  min-height: 18px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+footer {
+  padding: 12px 4px;
+  color: #777;
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+  }
+}
 </style>
 </head>
+
 <body>
 <main>
-<header>
-<div class="eyebrow">BEDROCK EDITION</div>
-<h1>🎯 OSC CALCULATOR</h1>
-<div class="muted">Coordinate distance & stack breakdown</div>
-</header>
-<section class="panel">
-<label for="cannon">Cannon X coordinate</label>
-<input id="cannon" type="number" value="250">
-<label for="target">Target X coordinate</label>
-<input id="target" type="number" value="1000">
-<label for="stack">Blocks per stack</label>
-<input id="stack" type="number" min="1" value="64">
-</section>
-<section class="panel" aria-live="polite">
-<div class="small">HORIZONTAL DISTANCE</div>
-<div class="result" id="distance">750 blocks</div>
-<div class="line"><span>Full stacks</span><strong id="stacks">11</strong></div>
-<div class="line"><span>Extra blocks</span><strong id="extra">46</strong></div>
-<div class="line"><span>Total blocks</span><strong id="total">750</strong></div>
-<button id="copy">Copy calculation</button>
-<div class="small" id="status" role="status"></div>
-</section>
-<footer>Distance calculator — validate your cannon's actual range in-game.</footer>
+  <header>
+    <div class="topline">
+      <div class="eyebrow">OSC / SYSTEM 01</div>
+      <div class="mark" aria-hidden="true">O</div>
+    </div>
+
+    <h1>STRIKE<br>CALCULATOR</h1>
+    <div class="subtitle">
+      Bedrock Edition / Coordinate Distance System
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="section-title">01 / COORDINATE INPUT</div>
+
+    <label for="cannon">CANNON X COORDINATE</label>
+    <input id="cannon" type="number" step="any"
+           value="250" inputmode="decimal">
+
+    <label for="target">TARGET X COORDINATE</label>
+    <input id="target" type="number" step="any"
+           value="1000" inputmode="decimal">
+  </section>
+
+  <section class="panel">
+    <div class="section-title">02 / STACK CONFIGURATION</div>
+
+    <label for="stack">BLOCKS PER STACK</label>
+    <input id="stack" type="number" min="1"
+           step="1" value="64" inputmode="numeric">
+
+    <div class="hint">
+      How many blocks fit in one stack.
+      Standard Minecraft stacks usually contain 64 blocks.
+    </div>
+  </section>
+
+  <section class="panel result-panel" aria-live="polite">
+    <div class="result-head">
+      <div class="small">03 / HORIZONTAL DISTANCE</div>
+      <div class="result">
+        <span id="distance">750</span>
+        <span class="result-unit">BLOCKS</span>
+      </div>
+    </div>
+
+    <div class="result-body">
+      <div class="line">
+        <span>FULL STACKS</span>
+        <strong id="stacks">11</strong>
+      </div>
+
+      <div class="line">
+        <span>REMAINING BLOCKS</span>
+        <strong id="extra">46</strong>
+      </div>
+
+      <div class="line">
+        <span>TOTAL DISTANCE</span>
+        <strong id="total">750</strong>
+      </div>
+
+      <button id="copy" type="button">
+        COPY CALCULATION
+      </button>
+
+      <button id="reset" class="secondary" type="button">
+        RESET VALUES
+      </button>
+
+      <div id="status" role="status"
+           aria-live="polite"></div>
+    </div>
+  </section>
+
+  <footer>
+    OSC / BEDROCK EDITION<br>
+    DISTANCE TOOL — VERIFY ACTUAL CANNON RANGE IN-GAME
+  </footer>
 </main>
+
 <script>
-const cannon=document.getElementById("cannon");
-const target=document.getElementById("target");
-const stack=document.getElementById("stack");
-let calculation="";
-function calculate(){
- const a=Number(cannon.value),b=Number(target.value),size=Number(stack.value);
- const valid=cannon.value.trim()!==""&&target.value.trim()!==""&&stack.value.trim()!==""&&Number.isFinite(a)&&Number.isFinite(b)&&Number.isInteger(size)&&size>0;
- if(!valid){
-  ["distance","stacks","extra","total"].forEach(id=>document.getElementById(id).textContent="—");
-  calculation="";return;
- }
- const d=Math.abs(b-a),full=Math.floor(d/size),extra=d%size;
- document.getElementById("distance").textContent=d+" blocks";
- document.getElementById("stacks").textContent=full;
- document.getElementById("extra").textContent=extra;
- document.getElementById("total").textContent=d;
- calculation=`${d} blocks = ${full} stacks + ${extra} blocks`;
+const cannon = document.getElementById("cannon");
+const target = document.getElementById("target");
+const stack = document.getElementById("stack");
+const status = document.getElementById("status");
+
+let calculation = "";
+
+function calculate() {
+  const a = Number(cannon.value);
+  const b = Number(target.value);
+  const size = Number(stack.value);
+
+  const valid =
+    cannon.value.trim() !== "" &&
+    target.value.trim() !== "" &&
+    stack.value.trim() !== "" &&
+    Number.isFinite(a) &&
+    Number.isFinite(b) &&
+    Number.isInteger(size) &&
+    size > 0;
+
+  if (!valid) {
+    ["distance", "stacks", "extra", "total"]
+      .forEach(id => {
+        document.getElementById(id).textContent = "—";
+      });
+
+    calculation = "";
+    status.textContent =
+      "Enter valid coordinates and a positive whole stack size.";
+    return;
+  }
+
+  const d = Math.abs(b - a);
+  const full = Math.floor(d / size);
+  const extra = d % size;
+
+  document.getElementById("distance").textContent = d;
+  document.getElementById("stacks").textContent = full;
+  document.getElementById("extra").textContent = extra;
+  document.getElementById("total").textContent = d;
+
+  calculation =
+    `${d} blocks = ${full} stacks + ${extra} blocks`;
+
+  status.textContent = "";
 }
-[cannon,target,stack].forEach(el=>el.addEventListener("input",calculate));
-document.getElementById("copy").addEventListener("click",async()=>{
- if(!calculation)return;
- const status=document.getElementById("status");
- try{await navigator.clipboard.writeText(calculation);status.textContent="Calculation copied!"}
- catch{status.textContent=calculation}
+
+[cannon, target, stack].forEach(input => {
+  input.addEventListener("input", calculate);
 });
+
+document.getElementById("copy").addEventListener(
+  "click", async () => {
+    if (!calculation) {
+      status.textContent = "Enter valid values first.";
+      return;
+    }
+
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("Clipboard unavailable");
+      }
+
+      await navigator.clipboard.writeText(calculation);
+      status.textContent = "Calculation copied successfully.";
+    } catch {
+      status.textContent = calculation;
+    }
+  }
+);
+
+document.getElementById("reset").addEventListener(
+  "click", () => {
+    cannon.value = "250";
+    target.value = "1000";
+    stack.value = "64";
+    calculate();
+    status.textContent = "Values reset.";
+  }
+);
+
 calculate();
 </script>
 </body>
