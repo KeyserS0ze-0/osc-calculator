@@ -265,25 +265,22 @@ footer {
     </div>
   </header>
 
-  <!-- Combined X & Z coordinates -->
   <section class="panel">
     <div class="section-title">01 / X &amp; Z COORDINATES</div>
 
-    <label for="cannonX">CANNON X</label>
-    <input id="cannonX" type="number" step="any"
-           placeholder="Enter cannon X" inputmode="decimal">
+    <label for="cannon">YOUR LOCATION (X, Z)</label>
+    <input id="cannon" type="text"
+           placeholder="Example: 250, 100"
+           inputmode="decimal" autocomplete="off">
 
-    <label for="targetX">TARGET X</label>
-    <input id="targetX" type="number" step="any"
-           placeholder="Enter target X" inputmode="decimal">
+    <label for="target">TARGET LOCATION (X, Z)</label>
+    <input id="target" type="text"
+           placeholder="Example: 1000, 400"
+           inputmode="decimal" autocomplete="off">
 
-    <label for="cannonZ">CANNON Z</label>
-    <input id="cannonZ" type="number" step="any"
-           placeholder="Enter cannon Z" inputmode="decimal">
-
-    <label for="targetZ">TARGET Z</label>
-    <input id="targetZ" type="number" step="any"
-           placeholder="Enter target Z" inputmode="decimal">
+    <div class="hint">
+      Enter X and Z separated by a comma. Example: 250, 100
+    </div>
   </section>
 
   <section class="panel">
@@ -345,9 +342,12 @@ footer {
 </main>
 
 <script>
-const ids = ["cannonX", "targetX", "cannonZ", "targetZ", "stack"];
-const fields = ids.map(id => document.getElementById(id));
+const cannon = document.getElementById("cannon");
+const target = document.getElementById("target");
+const stack = document.getElementById("stack");
 const status = document.getElementById("status");
+
+const fields = [cannon, target, stack];
 const previousValid = new Set();
 const flashTimers = new Map();
 
@@ -357,9 +357,27 @@ function setOutput(id, value) {
   document.getElementById(id).textContent = value;
 }
 
+function parseCoordinates(input) {
+  const parts = input.value.trim().split(/[,\s]+/);
+
+  if (
+    parts.length !== 2 ||
+    parts.some(part => part === "")
+  ) return null;
+
+  const x = Number(parts[0]);
+  const z = Number(parts[1]);
+
+  if (!Number.isFinite(x) || !Number.isFinite(z)) {
+    return null;
+  }
+
+  return { x, z };
+}
+
 function updateField(input) {
-  const wasValid = previousValid.has(input.id);
   const value = input.value.trim();
+  const wasValid = previousValid.has(input.id);
 
   input.classList.remove("empty", "valid", "invalid");
 
@@ -371,10 +389,15 @@ function updateField(input) {
     return false;
   }
 
-  const n = Number(value);
-  const isStack = input.id === "stack";
-  const valid = Number.isFinite(n) &&
-    (!isStack || (Number.isInteger(n) && n > 0));
+  let valid;
+
+  if (input === stack) {
+    const n = Number(value);
+    valid = Number.isFinite(n) &&
+      Number.isInteger(n) && n > 0;
+  } else {
+    valid = parseCoordinates(input) !== null;
+  }
 
   if (!valid) {
     input.classList.remove("flash");
@@ -407,26 +430,29 @@ function updateField(input) {
 
 function calculate() {
   const validity = fields.map(updateField);
-  const allFilled = fields.every(input => input.value.trim() !== "");
-  const allValid = validity.every(Boolean);
+  const allFilled = fields.every(
+    input => input.value.trim() !== ""
+  );
 
-  if (!allFilled || !allValid) {
+  if (!allFilled || !validity.every(Boolean)) {
     ["distance", "dx", "dz", "stacks", "extra"]
       .forEach(id => setOutput(id, "—"));
 
     calculation = "";
     status.textContent = !allFilled
       ? "AWAITING COORDINATES"
-      : "CHECK INVALID INPUTS";
+      : "CHECK INPUT FORMAT — USE X, Z";
     return;
   }
 
-  const [cx, tx, cz, tz, size] =
-    fields.map(input => Number(input.value));
+  const from = parseCoordinates(cannon);
+  const to = parseCoordinates(target);
+  const size = Number(stack.value);
 
-  const dx = Math.abs(tx - cx);
-  const dz = Math.abs(tz - cz);
+  const dx = Math.abs(to.x - from.x);
+  const dz = Math.abs(to.z - from.z);
   const distance = Math.hypot(dx, dz);
+
   const full = Math.floor(distance / size);
   const extra = Number((distance - full * size).toFixed(3));
 
@@ -437,6 +463,8 @@ function calculate() {
   setOutput("extra", extra);
 
   calculation =
+    `Your location: X ${from.x}, Z ${from.z}\n` +
+    `Target location: X ${to.x}, Z ${to.z}\n` +
     `X distance: ${dx} blocks\n` +
     `Z distance: ${dz} blocks\n` +
     `Horizontal distance: ${distance.toFixed(3)} blocks\n` +
@@ -451,7 +479,7 @@ fields.forEach(input => {
 
 document.getElementById("copy").addEventListener("click", async () => {
   if (!calculation) {
-    status.textContent = "Enter valid values first.";
+    status.textContent = "Enter valid coordinates first.";
     return;
   }
 
@@ -465,17 +493,15 @@ document.getElementById("copy").addEventListener("click", async () => {
 });
 
 document.getElementById("reset").addEventListener("click", () => {
-  ["cannonX", "targetX", "cannonZ", "targetZ"].forEach(id => {
-    const input = document.getElementById(id);
-    input.value = "0";
-    previousValid.delete(id);
-    clearTimeout(flashTimers.get(id));
+  [cannon, target].forEach(input => {
+    input.value = "0, 0";
+    previousValid.delete(input.id);
+    clearTimeout(flashTimers.get(input.id));
   });
 
-  // Keep the stack size at 64.
-  document.getElementById("stack").value = "64";
-  previousValid.delete("stack");
-  clearTimeout(flashTimers.get("stack"));
+  stack.value = "64";
+  previousValid.delete(stack.id);
+  clearTimeout(flashTimers.get(stack.id));
 
   calculate();
   status.textContent = "SYSTEM RESET — COORDINATES ZEROED";
