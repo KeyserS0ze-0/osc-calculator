@@ -9,6 +9,7 @@
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -198,21 +199,77 @@ private:
         if (!mVisible || mResult.lines.empty()) return;
         using pl::modmenu::DrawCommand;
         using pl::modmenu::DrawCommandType;
-        const float x = 24.0f, y = 120.0f, lineH = 26.0f, w = 320.0f;
+
+        const float w = 360.0f, pad = 16.0f, titleH = 36.0f, rowH = 28.0f;
+        const uint32_t accent = mResult.ok ? 0xFFA7E8B7 : 0xFFFF7777;
+        const uint32_t labelCol = 0xFF9A9A9A, valueCol = 0xFFEEEEEE;
+
+        // Split the result into title, main answer and detail rows
+        std::string title = mResult.lines[0];
+        std::string mainText;
+        std::vector<std::pair<std::string, std::string>> rows;
+        for (size_t i = 1; i < mResult.lines.size(); ++i) {
+            const std::string &ln = mResult.lines[i];
+            size_t p = ln.find(": ");
+            std::string label = p == std::string::npos ? "" : ln.substr(0, p);
+            std::string value = p == std::string::npos ? ln : ln.substr(p + 2);
+            if (mResult.ok && mainText.empty() &&
+                (label == "Supply" || label == "Total")) {
+                mainText = value;
+                continue;
+            }
+            rows.push_back({label, value});
+        }
+
+        const float mainH = mainText.empty() ? 0.0f : 64.0f;
+        const float h = titleH + mainH + rowH * (float)rows.size() + pad;
+        auto surf = pl::modmenu::getHudSurfaceSize();
+        const float x = surf.width > w ? (surf.width - w) / 2.0f : 24.0f;
+        const float y = 24.0f;
+
         std::vector<DrawCommand> cmds;
         cmds.push_back({.type = DrawCommandType::RectFilled,
-                        .x = x, .y = y, .w = w,
-                        .h = 16.0f + lineH * (float)mResult.lines.size(),
-                        .color = 0xD9101010});
-        const uint32_t green = 0xFFA7E8B7, red = 0xFFFF7777;
-        float ty = y + 8.0f;
-        for (size_t i = 0; i < mResult.lines.size(); ++i) {
+                        .x = x, .y = y, .w = w, .h = h, .color = 0xE6121212});
+        cmds.push_back({.type = DrawCommandType::Rect,
+                        .x = x, .y = y, .w = w, .h = h,
+                        .color = 0xFF2E3B33, .size = 1.0f});
+        cmds.push_back({.type = DrawCommandType::RectFilled,
+                        .x = x, .y = y, .w = w, .h = 4.0f, .color = accent});
+        cmds.push_back({.type = DrawCommandType::Text,
+                        .x = x + pad, .y = y + 12.0f, .color = labelCol,
+                        .size = 16.0f, .text = title});
+
+        if (!mainText.empty()) {
+            float ms = 28.0f;
+            const float maxW = w - 2.0f * pad;
+            const float len = (float)mainText.size();
+            if (len * ms * 0.55f > maxW) ms = maxW / (len * 0.55f);
+            float tx = x + (w - len * ms * 0.55f) / 2.0f;
+            if (tx < x + pad) tx = x + pad;
             cmds.push_back({.type = DrawCommandType::Text,
-                            .x = x + 12.0f, .y = ty,
-                            .color = mResult.ok ? green : red,
-                            .size = i == 0 ? 20.0f : 18.0f,
-                            .text = mResult.lines[i]});
-            ty += lineH;
+                            .x = tx, .y = y + titleH + 10.0f, .color = accent,
+                            .size = ms, .text = mainText});
+            cmds.push_back({.type = DrawCommandType::RectFilled,
+                            .x = x + pad, .y = y + titleH + mainH,
+                            .w = w - 2.0f * pad, .h = 1.0f, .color = 0xFF303030});
+        }
+
+        float ry = y + titleH + mainH + 8.0f;
+        for (const auto &row : rows) {
+            if (row.first.empty()) {
+                cmds.push_back({.type = DrawCommandType::Text,
+                                .x = x + pad, .y = ry, .color = valueCol,
+                                .size = 16.0f, .text = row.second});
+            } else {
+                cmds.push_back({.type = DrawCommandType::Text,
+                                .x = x + pad, .y = ry, .color = labelCol,
+                                .size = 16.0f, .text = row.first});
+                float vx = x + w - pad - (float)row.second.size() * 16.0f * 0.55f;
+                cmds.push_back({.type = DrawCommandType::Text,
+                                .x = vx, .y = ry, .color = valueCol,
+                                .size = 16.0f, .text = row.second});
+            }
+            ry += rowH;
         }
         pl::modmenu::submitDrawCommands(kModuleId, cmds);
     }
