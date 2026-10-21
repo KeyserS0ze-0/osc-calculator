@@ -1,0 +1,10 @@
+{
+  "type": "preload-native",
+  "name": "OSC Toolkit",
+  "author": "You",
+  "version": "1.0.0",
+  "entry": "libosc_toolkit.so",
+  "minecraft_versions": [],
+  "overwrite_files": [],
+  "overwrite_folders": []
+}
