@@ -13,4 +13,4 @@ FetchContent_Declare(preloader_android
 FetchContent_MakeAvailable(preloader_android)
 
 add_library(osc_toolkit SHARED src/main.cpp)
-target_link_libraries(osc_toolkit PRIVATE preloader)
+target_link_libraries(osc_toolkit PRIVATE preloader log)
